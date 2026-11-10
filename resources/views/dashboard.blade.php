@@ -1,6 +1,16 @@
 <x-layouts::app :title="__('Dashboard')">
     <livewire:pages::teams.pending-invitations-modal />
 
+    @php($widgets = \App\Modules\Facades\Modules::widgetsFor(auth()->user()->currentTeam, auth()->user()))
+
+    @if ($widgets->isNotEmpty())
+        <div class="mb-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-test="dashboard-widgets">
+            @foreach ($widgets as $widget)
+                <livewire:dynamic-component :is="$widget->component" :key="$widget->component" />
+            @endforeach
+        </div>
+    @endif
+
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
             <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">

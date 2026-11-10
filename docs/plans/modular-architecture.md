@@ -1,6 +1,6 @@
 # Implementation plan: modular architecture
 
-Status: phase 0 complete (2026-11-10). Phase 1 is next.
+Status: phases 0 and 1 complete (2026-11-10). Phase 2 is next.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
@@ -26,25 +26,30 @@ Completed 2026-11-10. A user with no organization lands on `/onboarding`, where 
 
 ## Phase 1: Module system in core
 
-Build the mechanism with no real module yet, proven by a fixture module in the test suite.
+Completed 2026-11-10. The mechanism exists with no real module yet, proven by two fixture modules in the test suite.
 
-- [ ] `app/Modules/Module.php`: abstract service provider. Subclasses declare `key()`, `name()`, `description()`, `icon()`, `dependencies()`, and optionally `permissions()`, `navigation()`, `widgets()`, `settingsPage()`. `register()` adds the module to the registry; `boot()` wires routes, views, migrations, translations, and commands only if the module is active.
-- [ ] `app/Modules/ModuleRegistry.php` (singleton, `Modules` facade): `installed()`, `active()`, `enabled(string $key, ?Team $team = null)`, `enabledFor(Team $team)`, `enable()`, `disable()`. Validates that dependencies are present and acyclic at boot and fails loudly if not.
-- [ ] `config/tessera.php`: `modules` (from `TESSERA_MODULES`; `*` means all installed), `single_organization`.
-- [ ] Migration `team_modules` (`team_id`, `module`, `settings` JSON, timestamps; unique on team and module). `Team::modules()` relation. Per-request caching of the enabled set.
-- [ ] `EnsureModuleEnabled` middleware, aliased `module`. Returns 404 when the module is not enabled for the route's organization.
-- [ ] Route wiring: the base provider wraps a module's `routes/web.php` in `{current_team}/<key>`, the `auth`, `verified`, `EnsureTeamMembership`, and `module:<key>` middleware, and the `<key>.` name prefix.
-- [ ] Views: `Livewire::addNamespace($key, viewPath: ...)` plus `loadViewsFrom` for plain Blade components.
-- [ ] Navigation: the sidebar renders `Modules::navigationFor($team, $user)` in place of the hard-coded "Platform" group. The dashboard renders registered widgets the same way.
-- [ ] Permissions: a string-keyed registry for module permissions, each with a minimum `TeamRole`. Extend `HasTeams::hasTeamPermission()` to accept either a `TeamPermission` or a registered string.
-- [ ] Organization settings → Modules page: list active modules with description, enable and disable (owner and admin only), enforce dependencies. Hidden in single-organization mode, where every active module is enabled automatically.
-- [ ] `ModuleEntitlements` contract with a default implementation that allows everything. The enable action consults it.
-- [ ] Commands: `module:list` (installed, active, enabled counts), `module:enable <key> --team=`, `module:disable`, `module:purge <key> --team=` (confirmed, deletes one organization's data for the module through its `purging` hook), `module:purge <key>` (confirmed, rolls back that module's migrations; refuses when more than one organization exists unless forced).
-- [ ] Root `composer.json`: add the `modules/*` path repository. `phpunit.xml`: add a `Modules` test suite over `modules/*/tests`. `app.css`: add `@source '../../modules/*/resources/views'`. `phpstan.neon` and `pint.json`: include `modules/`.
-- [ ] Architecture test: nothing in `App` uses `Tessera`.
-- [ ] Fixture module under `tests/Fixtures/modules/example`, used to test: inactive module registers no routes or migrations; active-but-not-enabled returns 404 and shows no nav; enabled works; dependency enforcement; purge.
+- [x] `App\Modules\Module`: abstract service provider. Subclasses declare `key()`, `name()`, `path()`, and optionally `description()`, `icon()`, `dependencies()`, `permissions()`, `navigation()`, `widgets()`, and the `enabling()`, `disabled()`, `purging()` hooks. Routes, views, migrations, and translations are wired only when the module is active.
+- [x] `App\Modules\ModuleRegistry` (singleton, `App\Modules\Facades\Modules`): `installed()`, `active()`, `enabled()`, `enabledFor()`, `navigationFor()`, `widgetsFor()`, `allows()`. The app refuses to boot when an active module's dependency is inactive or dependencies are circular.
+- [x] `config/tessera.php`: `modules` (`TESSERA_MODULES`, default `*`) and `single_organization` (`TESSERA_SINGLE_ORGANIZATION`).
+- [x] `team_modules` table, `TeamModule` model, `Team::modules()`.
+- [x] `EnsureModuleEnabled` middleware, aliased `module`: 404 unless enabled for the route's organization.
+- [x] Route wiring: a module's `routes/web.php` is wrapped in `{current_team}/<key>`, the `web`, `auth`, `verified`, `EnsureTeamMembership`, and `module:<key>` middleware, and the `<key>.` name prefix.
+- [x] Views: a module's `resources/views` is registered as the `<key>::` namespace for both Blade and Livewire.
+- [x] Navigation and dashboard widgets render from the registry, filtered by enablement and permission.
+- [x] Permissions: `User::hasTeamPermission()` accepts a `TeamPermission` or a module permission string. A module permission is held only while its module is enabled for that organization.
+- [x] Organization settings → Modules section (owners and admins), hidden when no modules are active and in single-organization mode.
+- [x] `ModuleEntitlements` contract, default `AllowAllModules`. Bound with `bindIf` so a hosting package's binding wins.
+- [x] `EnableModule` and `DisableModule` actions; commands `module:list`, `module:enable`, `module:disable`, `module:purge`.
+- [x] Root wiring: `modules/*` Composer path repository, `Modules` PHPUnit suite, Pest and Tailwind sources.
+- [x] Architecture test: nothing in `App` uses `Tessera`.
+- [x] Fixture modules under `tests/Fixtures/Modules`, registered in tests with the `installModules()` helper.
 
-Done when: the fixture module can be activated, enabled, disabled, and purged in tests, and the app with zero modules behaves exactly like the end of phase 0.
+Left for the phase that first needs them:
+
+- Per-module settings pages and per-organization module settings (the `settings` column exists; nothing reads it yet).
+- Module console commands and scheduled work; a module registers these itself in `bootModule()`.
+- `modules/` in `phpstan.neon`, added with the first real module because PHPStan rejects a path with no PHP files.
+- A module booting through Composer package discovery has not been exercised; the fixtures are registered at test time. Phase 2 proves it.
 
 ## Phase 2: Inventory module
 
@@ -52,6 +57,7 @@ Port Sunny's inventory as `modules/inventory` (`tessera/inventory`, namespace `T
 
 Bring across:
 
+- [ ] Add `modules/` to `phpstan.neon`, and confirm the module boots through package discovery.
 - [ ] `Item` model, `ItemType` enum, `ItemFactory`, and one squashed migration for `inventory_items` (the Sunny history of containers merging into items is not needed).
 - [ ] Actions: `CreateItem`, `UpdateItem`, `DuplicateItem`, `MoveItemToTeam`, `GenerateItemQrCode`.
 - [ ] `ItemPolicy`, rewritten on module permissions: `inventory:view` (member), `inventory:manage` (member), `inventory:delete` (admin). Sunny's policy only checks membership.
@@ -62,7 +68,7 @@ Bring across:
 
 Change on the way in:
 
-- [ ] **Replace Flux Pro components.** The Sunny pages use `flux:table`, `flux:date-picker`, and `flux:file-upload`, and possibly others; audit every `flux:` tag against the free component list. Rebuild with free Flux, native inputs, and a shared core table component (it will be needed by every module).
+- [ ] **Replace Flux Pro components.** Free Flux now includes `flux:table`, so the tables carry over. `flux:date-picker` and `flux:file-upload` do not; rebuild those with native inputs and Livewire uploads as shared core components. Audit every other `flux:` tag against the free component list (see the `fluxui-development` skill).
 - [ ] **Photos on any disk.** Sunny calls `Storage::temporaryUrl()`, which assumes S3. Cloud uses object storage and self-hosters may use `local`, so put this behind one core helper that returns a URL for a stored file on whichever disk is configured, and test it against both.
 - [ ] **Tenant isolation tests.** For every page and action, a test that a member of one organization cannot see or change another organization's items. Sunny's `viewAny` and `create` return `true` unconditionally; tighten them.
 - [ ] **Portable SQL.** `Item::descendantIds()` uses a recursive CTE with a hard-coded table name. Confirm it on SQLite, MySQL, MariaDB, and PostgreSQL, and use the model's table name.

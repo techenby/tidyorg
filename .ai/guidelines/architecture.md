@@ -17,4 +17,6 @@ Tessera is an open-source, self-hosted application for nonprofits (inventory, me
 - The project is licensed AGPL-3.0.
 - `Team` in code is "organization" in all user-facing copy. There are no personal teams.
 - Disabling or deactivating a module never deletes data. Only `module:purge` does.
+- A module's service provider extends `App\Modules\Module`; ask the `App\Modules\Facades\Modules` facade whether a module is enabled. `tests/Fixtures/Modules/Example` is the reference module, and tests install modules with `installModules()`.
+- Module permissions are strings prefixed with the module key (`inventory:view`), checked with `$user->hasTeamPermission($team, 'inventory:view')`.
 - New feature area and unsure where it goes: make it a module.

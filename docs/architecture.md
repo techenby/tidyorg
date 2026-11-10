@@ -92,6 +92,8 @@ Core exposes a small, stable set of places where a module plugs in. A module's s
 
 When a module needs something that no extension point offers, add an extension point to core. Do not special-case the module in core.
 
+`tests/Fixtures/Modules/Example` is a complete, minimal module and the reference for how one is put together. Tests install modules with the `installModules()` helper in `tests/Pest.php`.
+
 ### Permissions
 
 The starter kit's `TeamPermission` enum cannot be extended from a package, so module permissions are strings registered with the module registry, each mapped to the minimum `TeamRole` that holds it by default. Core's own permissions stay in the enum. Policies in modules ask `User::hasTeamPermission()` in the same way core does.

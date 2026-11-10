@@ -18,6 +18,12 @@
                         <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                             {{ __('Dashboard') }}
                         </flux:sidebar.item>
+
+                        @foreach (\App\Modules\Facades\Modules::navigationFor(auth()->user()->currentTeam, auth()->user()) as $item)
+                            <flux:sidebar.item :icon="$item->icon" :href="route($item->route)" :current="request()->routeIs($item->currentPattern())" wire:navigate>
+                                {{ __($item->label) }}
+                            </flux:sidebar.item>
+                        @endforeach
                     @else
                         <flux:sidebar.item icon="plus" :href="route('onboarding')" wire:navigate>
                             {{ __('Get started') }}

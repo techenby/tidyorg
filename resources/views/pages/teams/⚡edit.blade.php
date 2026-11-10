@@ -290,6 +290,10 @@ new class extends Component
                 </div>
             @endif
 
+            @if ($this->permissions->canUpdateTeam)
+                <livewire:pages::teams.modules :team="$teamModel" />
+            @endif
+
             @if ($this->permissions->canDeleteTeam)
                 <div class="space-y-6">
                     <div>

@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Collection<int, TeamInvitation> $invitations
+ * @property-read Collection<int, TeamModule> $modules
  * @property-read Collection<int, Membership> $memberships
  * @property-read Collection<int, User> $members
  */
@@ -100,5 +101,15 @@ class Team extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * Get the modules enabled for this team.
+     *
+     * @return HasMany<TeamModule, $this>
+     */
+    public function modules(): HasMany
+    {
+        return $this->hasMany(TeamModule::class);
     }
 }

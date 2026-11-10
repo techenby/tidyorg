@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Modules\AllowAllModules;
+use App\Modules\Contracts\ModuleEntitlements;
+use App\Modules\ModuleRegistry;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singletonIf(ModuleRegistry::class);
+        $this->app->bindIf(ModuleEntitlements::class, AllowAllModules::class);
     }
 
     /**
@@ -24,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        $this->app->make(ModuleRegistry::class)->validate();
     }
 
     /**

@@ -1,6 +1,10 @@
 <?php
 
+use App\Modules\Module;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
+use Tests\Fixtures\Modules\Example\ExampleModule;
 use Tests\TestCase;
 
 /*
@@ -16,7 +20,7 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
-    ->in('Feature');
+    ->in('Feature', '../modules/*/tests');
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +48,22 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Install module service providers the way package discovery would, then migrate their tables.
+ *
+ * @param  list<class-string<Module>>  $providers
+ * @param  string|list<string>  $active
+ */
+function installModules(array $providers = [ExampleModule::class], string|array $active = '*'): void
 {
-    // ..
+    config(['tessera.modules' => $active]);
+
+    foreach ($providers as $provider) {
+        app()->register($provider);
+    }
+
+    Route::getRoutes()->refreshNameLookups();
+    Route::getRoutes()->refreshActionLookups();
+
+    Artisan::call('migrate');
 }

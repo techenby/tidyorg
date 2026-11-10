@@ -10,6 +10,12 @@
         "laravel"
     ],
     "license": "AGPL-3.0-or-later",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "modules/*"
+        }
+    ],
     "require": {
         "php": "^8.3",
         "laravel/chisel": "^0.1.0",

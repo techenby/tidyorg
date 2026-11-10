@@ -8,6 +8,7 @@ use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Models\Membership;
 use App\Models\Team;
+use App\Modules\ModuleRegistry;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -209,9 +210,15 @@ trait HasTeams
 
     /**
      * Determine if the user has the given permission on the team.
+     *
+     * Core permissions are TeamPermission cases; module permissions are strings such as "inventory:view".
      */
-    public function hasTeamPermission(Team $team, TeamPermission $permission): bool
+    public function hasTeamPermission(Team $team, TeamPermission|string $permission): bool
     {
+        if (is_string($permission)) {
+            return app(ModuleRegistry::class)->allows($this, $team, $permission);
+        }
+
         return $this->teamRole($team)?->hasPermission($permission) ?? false;
     }
 }
