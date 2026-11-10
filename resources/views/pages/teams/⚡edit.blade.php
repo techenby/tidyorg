@@ -59,7 +59,7 @@ new class extends Component
 
         $this->populateTeamData();
 
-        Flux::toast(variant: 'success', text: __('Team updated.'));
+        Flux::toast(variant: 'success', text: __('Organization updated.'));
 
         $this->redirectRoute('teams.edit', ['team' => $this->teamModel->fresh()->slug], navigate: true);
     }
@@ -92,7 +92,6 @@ new class extends Component
             'id' => $team->id,
             'name' => $team->name,
             'slug' => $team->slug,
-            'is_personal' => $team->is_personal,
         ];
 
         $this->members = $team->members()->get()->map(fn ($member) => [
@@ -142,15 +141,15 @@ new class extends Component
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <flux:heading level="2" class="sr-only">{{ __('Teams') }}</flux:heading>
+    <flux:heading level="2" class="sr-only">{{ __('Organizations') }}</flux:heading>
 
-    <x-pages::settings.layout :heading="__('Teams')" :subheading="__('Manage your team settings')">
+    <x-pages::settings.layout :heading="__('Organizations')" :subheading="__('Manage your organization settings')">
         <div class="space-y-10">
             <div class="space-y-6">
                 @if ($this->permissions->canUpdateTeam)
                     <div class="space-y-4">
                         <form wire:submit="updateTeam" class="space-y-6">
-                            <flux:input wire:model="teamName" :label="__('Team name')" required data-test="team-name-input" />
+                            <flux:input wire:model="teamName" :label="__('Organization name')" required data-test="team-name-input" />
 
                             <flux:button variant="primary" type="submit" data-test="team-save-button">
                                 {{ __('Save') }}
@@ -167,9 +166,9 @@ new class extends Component
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <flux:heading>{{ __('Team members') }}</flux:heading>
+                        <flux:heading>{{ __('Members') }}</flux:heading>
                         @if ($this->permissions->canAddMember || $this->permissions->canUpdateMember || $this->permissions->canRemoveMember)
-                            <flux:subheading>{{ __('Manage who belongs to this team') }}</flux:subheading>
+                            <flux:subheading>{{ __('Manage who belongs to this organization') }}</flux:subheading>
                         @endif
                     </div>
 
@@ -291,11 +290,11 @@ new class extends Component
                 </div>
             @endif
 
-            @if ($this->permissions->canDeleteTeam && ! $teamData['is_personal'])
+            @if ($this->permissions->canDeleteTeam)
                 <div class="space-y-6">
                     <div>
-                        <flux:heading>{{ __('Delete team') }}</flux:heading>
-                        <flux:subheading>{{ __('Permanently delete your team') }}</flux:subheading>
+                        <flux:heading>{{ __('Delete organization') }}</flux:heading>
+                        <flux:subheading>{{ __('Permanently delete your organization') }}</flux:subheading>
                     </div>
 
                     <div class="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-200/10 dark:bg-red-900/20 dark:text-red-100">
@@ -306,7 +305,7 @@ new class extends Component
 
                         <flux:modal.trigger name="delete-team">
                             <flux:button variant="danger" data-test="delete-team-button">
-                                {{ __('Delete team') }}
+                                {{ __('Delete organization') }}
                             </flux:button>
                         </flux:modal.trigger>
                     </div>
@@ -319,7 +318,7 @@ new class extends Component
         <livewire:pages::teams.invite-member-modal :team="$teamModel" />
     @endif
 
-    @if ($this->permissions->canDeleteTeam && ! $teamData['is_personal'])
+    @if ($this->permissions->canDeleteTeam)
         <livewire:pages::teams.delete-team-modal :team="$teamModel" />
     @endif
 </section>

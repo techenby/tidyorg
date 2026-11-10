@@ -12,7 +12,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Teams')] class extends Component {
+new #[Title('Organizations')] class extends Component {
     public string $name = '';
 
     public function createTeam(CreateTeam $createTeam): void
@@ -29,7 +29,7 @@ new #[Title('Teams')] class extends Component {
 
         $this->reset('name');
 
-        Flux::toast(variant: 'success', text: __('Team created.'));
+        Flux::toast(variant: 'success', text: __('Organization created.'));
 
         $this->redirectRoute('teams.edit', ['team' => $team->slug], navigate: true);
     }
@@ -41,21 +41,19 @@ new #[Title('Teams')] class extends Component {
 
         Gate::authorize('leave', $team);
 
-        $fallbackTeam = $user->isCurrentTeam($team)
-            ? $user->fallbackTeam($team)
-            : null;
+        $wasCurrentTeam = $user->isCurrentTeam($team);
 
         $team->memberships()
             ->where('user_id', $user->id)
             ->delete();
 
-        if ($fallbackTeam) {
-            $user->switchTeam($fallbackTeam);
+        if ($wasCurrentTeam) {
+            $user->switchToFallbackTeam();
         }
 
         $this->dispatch('close-modal', name: "leave-team-{$teamId}");
 
-        Flux::toast(variant: 'success', text: __('You left the team ":name"', ['name' => $team->name]));
+        Flux::toast(variant: 'success', text: __('You left the organization ":name"', ['name' => $team->name]));
 
         $this->redirectRoute('teams.index', navigate: true);
     }
@@ -73,13 +71,13 @@ new #[Title('Teams')] class extends Component {
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <flux:heading level="2" class="sr-only">{{ __('Teams') }}</flux:heading>
+    <flux:heading level="2" class="sr-only">{{ __('Organizations') }}</flux:heading>
 
-    <x-pages::settings.layout :heading="__('Teams')" :subheading="__('Manage your teams and team memberships')">
+    <x-pages::settings.layout :heading="__('Organizations')" :subheading="__('Manage your organizations and memberships')">
         <div class="flex items-center justify-end">
             <flux:modal.trigger name="create-team">
                 <flux:button variant="primary" icon="plus" x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-team')" data-test="teams-new-team-button">
-                    {{ __('New team') }}
+                    {{ __('New organization') }}
                 </flux:button>
             </flux:modal.trigger>
         </div>
@@ -89,20 +87,15 @@ new #[Title('Teams')] class extends Component {
                 <div class="flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900" data-test="team-row">
                     <div class="flex items-center gap-4">
                         <div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-medium">{{ $team->name }}</span>
-                                @if ($team->isPersonal)
-                                    <flux:badge color="zinc">{{ __('Personal') }}</flux:badge>
-                                @endif
-                            </div>
+                            <span class="font-medium">{{ $team->name }}</span>
                             <flux:text class="text-sm text-zinc-500 dark:text-zinc-400">{{ $team->roleLabel }}</flux:text>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-1">
-                        @if (! $team->isPersonal && $team->role !== 'owner')
+                        @if ($team->role !== 'owner')
                             <flux:modal.trigger :name="'leave-team-'.$team->id">
-                                <flux:tooltip :content="__('Leave team')">
+                                <flux:tooltip :content="__('Leave organization')">
                                     <flux:button
                                         variant="ghost"
                                         size="sm"
@@ -115,7 +108,7 @@ new #[Title('Teams')] class extends Component {
                             </flux:modal.trigger>
                         @endif
 
-                        <flux:tooltip :content="$team->role === 'member' ? __('View team') : __('Edit team')">
+                        <flux:tooltip :content="$team->role === 'member' ? __('View organization') : __('Edit organization')">
                             <flux:button
                                 variant="ghost"
                                 size="sm"
@@ -128,11 +121,11 @@ new #[Title('Teams')] class extends Component {
                     </div>
                 </div>
 
-                @if (! $team->isPersonal && $team->role !== 'owner')
+                @if ($team->role !== 'owner')
                     <flux:modal :name="'leave-team-'.$team->id" focusable class="max-w-lg">
                         <form wire:submit="leaveTeam({{ $team->id }})" class="space-y-6">
                             <div>
-                                <flux:heading size="lg">{{ __('Leave team') }}</flux:heading>
+                                <flux:heading size="lg">{{ __('Leave organization') }}</flux:heading>
                                 <flux:subheading>
                                     {{ __('Are you sure you want to leave :name?', ['name' => $team->name]) }}
                                 </flux:subheading>
@@ -144,7 +137,7 @@ new #[Title('Teams')] class extends Component {
                                 </flux:modal.close>
 
                                 <flux:button variant="danger" type="submit" data-test="leave-team-confirm">
-                                    {{ __('Leave team') }}
+                                    {{ __('Leave organization') }}
                                 </flux:button>
                             </div>
                         </form>
@@ -152,7 +145,7 @@ new #[Title('Teams')] class extends Component {
                 @endif
             @empty
                 <flux:text class="py-8 text-center text-zinc-500 dark:text-zinc-400">
-                    {{ __('You don\'t belong to any teams yet.') }}
+                    {{ __('You don\'t belong to any organizations yet.') }}
                 </flux:text>
             @endforelse
         </div>
@@ -161,11 +154,11 @@ new #[Title('Teams')] class extends Component {
     <flux:modal name="create-team" :show="$errors->isNotEmpty()" focusable class="max-w-lg">
         <form wire:submit="createTeam" class="space-y-6">
             <div>
-                <flux:heading size="lg">{{ __('Create a new team') }}</flux:heading>
-                <flux:subheading>{{ __('Give your team a name to get started.') }}</flux:subheading>
+                <flux:heading size="lg">{{ __('Create a new organization') }}</flux:heading>
+                <flux:subheading>{{ __('Give your organization a name to get started.') }}</flux:subheading>
             </div>
 
-            <flux:input wire:model="name" :label="__('Team name')" type="text" required autofocus data-test="create-team-name" />
+            <flux:input wire:model="name" :label="__('Organization name')" type="text" required autofocus data-test="create-team-name" />
 
             <div class="flex justify-end space-x-2 rtl:space-x-reverse">
                 <flux:modal.close>
@@ -173,7 +166,7 @@ new #[Title('Teams')] class extends Component {
                 </flux:modal.close>
 
                 <flux:button variant="primary" type="submit" data-test="create-team-submit">
-                    {{ __('Create team') }}
+                    {{ __('Create organization') }}
                 </flux:button>
             </div>
         </form>

@@ -1,13 +1,15 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "tessera/tessera",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "Open-source, self-hosted operations software for nonprofits.",
     "keywords": [
-        "laravel",
-        "framework"
+        "nonprofit",
+        "inventory",
+        "self-hosted",
+        "laravel"
     ],
-    "license": "MIT",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "php": "^8.3",
         "laravel/chisel": "^0.1.0",

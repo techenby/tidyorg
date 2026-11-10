@@ -75,10 +75,10 @@ test('team member cannot be removed by non owners', function () {
         ->assertForbidden();
 });
 
-test('removed members current team is set to personal team', function () {
+test('removed members current team is set to another of their teams', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
-    $personalTeam = $member->personalTeam();
+    $otherTeam = $member->currentTeam;
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
@@ -93,5 +93,23 @@ test('removed members current team is set to personal team', function () {
         ->call('removeMember')
         ->assertHasNoErrors();
 
-    expect($member->fresh()->current_team_id)->toEqual($personalTeam->id);
+    expect($member->fresh()->current_team_id)->toEqual($otherTeam->id);
+});
+
+test('removed members with no other team are left without a current team', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->withoutTeam()->create();
+    $team = $owner->currentTeam;
+
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
+
+    $this->actingAs($owner);
+
+    Livewire::test('pages::teams.remove-member-modal', ['team' => $team])
+        ->set('memberId', $member->id)
+        ->call('removeMember')
+        ->assertHasNoErrors();
+
+    expect($member->fresh()->current_team_id)->toBeNull();
 });

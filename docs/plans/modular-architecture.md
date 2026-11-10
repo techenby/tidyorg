@@ -1,27 +1,28 @@
 # Implementation plan: modular architecture
 
-Status: proposed, 2026-11-10. Nothing below is built yet.
+Status: phase 0 complete (2026-11-10). Phase 1 is next.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
 ## Starting point
 
 - Tessera is the Laravel Livewire starter kit with Teams: Laravel 13, Livewire 4, free Flux, Fortify, Pest. Routes are prefixed with `{current_team}` and guarded by `EnsureTeamMembership`. Roles are the `TeamRole` enum (owner, admin, member) with a fixed `TeamPermission` enum.
-- It is not yet a git repository.
 - Sunny's inventory lives in `sunny/web`: one `Item` model (self-nesting, typed as location, bin, or item, soft-deleted, with photo, thumbnail, and JSON metadata), six actions, a policy, two Livewire pages with modals (about 2,500 lines including tests), a QR-code deep link, a REST API controller, and eight MCP tools.
 
 ## Phase 0: Foundations
 
 Decisions and housekeeping that are cheap now and expensive later.
 
-- [ ] `git init`, first commit of the untouched starter kit so later diffs are readable.
-- [ ] Apply AGPL-3.0: add `LICENSE.md` with the full licence text, set `"license": "AGPL-3.0-or-later"` in `composer.json`, and state it in the README.
-- [ ] Rename the package in `composer.json` from `laravel/livewire-starter-kit` to `tessera/tessera`.
-- [ ] Remove personal teams: drop `is_personal`, adjust `CreateNewUser`, registration, and the team switcher, handle a signed-in user with no organization, and add an onboarding step that creates or joins one.
-- [ ] Change UI copy from "team" to "organization". Leave class, table, and route-parameter names alone so starter-kit updates still apply.
-- [ ] Remove the `@source` line for `flux-pro` from `resources/css/app.css`.
+- [x] `git init`, first commit of the untouched starter kit so later diffs are readable.
+- [x] Apply AGPL-3.0: add `LICENSE.md` with the full licence text, set `"license": "AGPL-3.0-or-later"` in `composer.json`, and state it in the README.
+- [x] Rename the package in `composer.json` from `laravel/livewire-starter-kit` to `tessera/tessera`.
+- [x] Remove personal teams: drop `is_personal`, adjust `CreateNewUser`, registration, and the team switcher, handle a signed-in user with no organization, and add an onboarding step that creates or joins one.
+- [x] Change UI copy from "team" to "organization", and the settings URLs to `settings/organizations`. Class, table, route, and route-parameter names stay as `team` so starter-kit updates still apply.
+- [x] Remove the `@source` line for `flux-pro` from `resources/css/app.css`.
 
 Done when: the app runs as before, the test suite passes, and the UI says "organization" throughout.
+
+Completed 2026-11-10. A user with no organization lands on `/onboarding`, where they create one or accept a pending invitation. `User::factory()` still gives each user an organization they own; use `->withoutTeam()` for a user with none.
 
 ## Phase 1: Module system in core
 

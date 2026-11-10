@@ -67,16 +67,6 @@ trait HasTeams
     }
 
     /**
-     * Get the user's personal team.
-     */
-    public function personalTeam(): ?Team
-    {
-        return $this->ownedTeams()
-            ->where('teams.is_personal', true)
-            ->first();
-    }
-
-    /**
      * Switch to the given team.
      */
     public function switchTeam(Team $team): bool
@@ -153,7 +143,6 @@ trait HasTeams
             id: $team->id,
             name: $team->name,
             slug: $team->slug,
-            isPersonal: $team->is_personal,
             role: $role?->value,
             roleLabel: $role?->label(),
             isCurrent: $this->isCurrentTeam($team),
@@ -178,12 +167,44 @@ trait HasTeams
         );
     }
 
+    /**
+     * Get the team the user should land on when they have no current team.
+     */
     public function fallbackTeam(?Team $excluding = null): ?Team
     {
         return $this->teams()
             ->when($excluding, fn ($query) => $query->where('teams.id', '!=', $excluding->id))
             ->orderByRaw('LOWER(teams.name)')
             ->first();
+    }
+
+    /**
+     * Get the URL the user should land on: their current team's dashboard, or onboarding when they have no team.
+     */
+    public function homeUrl(): string
+    {
+        return $this->currentTeam
+            ? route('dashboard', ['current_team' => $this->currentTeam->slug])
+            : route('onboarding');
+    }
+
+    /**
+     * Switch to the user's fallback team, or clear the current team when they have none left.
+     */
+    public function switchToFallbackTeam(?Team $excluding = null): ?Team
+    {
+        $team = $this->fallbackTeam($excluding);
+
+        if ($team) {
+            $this->switchTeam($team);
+
+            return $team;
+        }
+
+        $this->update(['current_team_id' => null]);
+        $this->unsetRelation('currentTeam');
+
+        return null;
     }
 
     /**

@@ -12,21 +12,21 @@ trait RedirectsToCurrentTeam
     {
         $team = $this->currentTeam($request);
 
+        if (! $team) {
+            return route('onboarding', absolute: false);
+        }
+
         URL::defaults(['current_team' => $team->slug]);
 
         return "/{$team->slug}{$redirect}";
     }
 
-    protected function currentTeam(Request $request): Team
+    protected function currentTeam(Request $request): ?Team
     {
         $user = $request->user();
 
         abort_if(! $user, 403);
 
-        $team = $user->currentTeam ?? $user->personalTeam();
-
-        abort_if(! $team, 403);
-
-        return $team;
+        return $user->currentTeam ?? $user->fallbackTeam();
     }
 }

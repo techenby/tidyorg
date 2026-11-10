@@ -28,7 +28,6 @@ test('teams can be created', function () {
 
     $this->assertDatabaseHas('teams', [
         'name' => 'Test Team',
-        'is_personal' => false,
     ]);
 });
 
@@ -154,7 +153,7 @@ test('team deletion requires name confirmation', function () {
 });
 
 test('deleting current team switches to alphabetically first remaining team', function () {
-    $user = User::factory()->create(['name' => 'Mike']);
+    $user = User::factory()->withoutTeam()->create();
 
     $zuluTeam = Team::factory()->create(['name' => 'Zulu Team']);
     $zuluTeam->members()->attach($user, ['role' => TeamRole::Owner->value]);
@@ -181,13 +180,9 @@ test('deleting current team switches to alphabetically first remaining team', fu
     expect($user->fresh()->current_team_id)->toEqual($alphaTeam->id);
 });
 
-test('deleting current team falls back to personal team when alphabetically first', function () {
+test('deleting the only team leaves the user without a current team', function () {
     $user = User::factory()->create();
-    $personalTeam = $user->personalTeam();
-    $team = Team::factory()->create(['name' => 'Zulu Team']);
-    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
-
-    $user->update(['current_team_id' => $team->id]);
+    $team = $user->currentTeam;
 
     $this->actingAs($user);
 
@@ -200,16 +195,16 @@ test('deleting current team falls back to personal team when alphabetically firs
         'id' => $team->id,
     ]);
 
-    expect($user->fresh()->current_team_id)->toEqual($personalTeam->id);
+    expect($user->fresh()->current_team_id)->toBeNull();
 });
 
 test('deleting non current team leaves current team unchanged', function () {
     $user = User::factory()->create();
-    $personalTeam = $user->personalTeam();
+    $currentTeam = $user->currentTeam;
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
 
-    $user->update(['current_team_id' => $personalTeam->id]);
+    $user->update(['current_team_id' => $currentTeam->id]);
 
     $this->actingAs($user);
 
@@ -222,10 +217,10 @@ test('deleting non current team leaves current team unchanged', function () {
         'id' => $team->id,
     ]);
 
-    expect($user->fresh()->current_team_id)->toEqual($personalTeam->id);
+    expect($user->fresh()->current_team_id)->toEqual($currentTeam->id);
 });
 
-test('members can leave non personal teams', function () {
+test('members can leave teams', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $team = Team::factory()->create();
@@ -244,7 +239,7 @@ test('members can leave non personal teams', function () {
 
 test('leaving current team switches to alphabetically first remaining team', function () {
     $owner = User::factory()->create();
-    $member = User::factory()->create(['name' => 'Mike']);
+    $member = User::factory()->withoutTeam()->create();
 
     $zuluTeam = Team::factory()->create(['name' => 'Zulu Team']);
     $zuluTeam->members()->attach($owner, ['role' => TeamRole::Owner->value]);
@@ -268,17 +263,22 @@ test('leaving current team switches to alphabetically first remaining team', fun
     expect($member->fresh()->current_team_id)->toEqual($alphaTeam->id);
 });
 
-test('personal teams cannot be left', function () {
-    $user = User::factory()->create();
-    $personalTeam = $user->personalTeam();
+test('leaving the only team leaves the user without a current team', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->withoutTeam()->create();
+    $team = $owner->currentTeam;
 
-    $this->actingAs($user);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
+
+    $this->actingAs($member);
 
     Livewire::test('pages::teams.index')
-        ->call('leaveTeam', $personalTeam->id)
-        ->assertForbidden();
+        ->call('leaveTeam', $team->id)
+        ->assertHasNoErrors();
 
-    expect($user->fresh()->belongsToTeam($personalTeam))->toBeTrue();
+    expect($member->fresh()->belongsToTeam($team))->toBeFalse();
+    expect($member->fresh()->current_team_id)->toBeNull();
 });
 
 test('team owners cannot leave their team', function () {
@@ -321,7 +321,7 @@ test('leave control is only rendered for leaveable teams', function () {
         ->assertSeeHtml('data-test="team-leave-button"');
 });
 
-test('leave control is not rendered for personal or owned teams', function () {
+test('leave control is not rendered for owned teams', function () {
     $user = User::factory()->create();
     $ownedTeam = Team::factory()->create();
 
@@ -333,9 +333,10 @@ test('leave control is not rendered for personal or owned teams', function () {
         ->assertDontSeeHtml('data-test="team-leave-button"');
 });
 
-test('deleting team switches other affected users to their personal team', function () {
+test('deleting team switches other affected users to another of their teams', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
+    $memberOtherTeam = $member->currentTeam;
 
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
@@ -351,25 +352,7 @@ test('deleting team switches other affected users to their personal team', funct
         ->call('deleteTeam')
         ->assertHasNoErrors();
 
-    expect($member->fresh()->current_team_id)->toEqual($member->personalTeam()->id);
-});
-
-test('personal teams cannot be deleted', function () {
-    $user = User::factory()->create();
-
-    $personalTeam = $user->personalTeam();
-
-    $this->actingAs($user);
-
-    Livewire::test('pages::teams.delete-team-modal', ['team' => $personalTeam])
-        ->set('deleteName', $personalTeam->name)
-        ->call('deleteTeam')
-        ->assertForbidden();
-
-    $this->assertDatabaseHas('teams', [
-        'id' => $personalTeam->id,
-        'deleted_at' => null,
-    ]);
+    expect($member->fresh()->current_team_id)->toEqual($memberOtherTeam->id);
 });
 
 test('teams cannot be deleted by non owners', function () {

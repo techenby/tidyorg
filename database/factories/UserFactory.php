@@ -39,14 +39,12 @@ class UserFactory extends Factory
     }
 
     /**
-     * Configure the model factory.
+     * Give every user an organization they own, unless created with withoutTeam().
      */
     public function configure(): static
     {
         return $this->afterCreating(function ($user) {
-            $team = Team::factory()->personal()->create([
-                'name' => $user->name."'s Team",
-            ]);
+            $team = Team::factory()->create();
 
             $team->members()->attach($user, [
                 'role' => TeamRole::Owner->value,
@@ -54,6 +52,14 @@ class UserFactory extends Factory
 
             $user->switchTeam($team);
         });
+    }
+
+    /**
+     * Indicate that the user does not belong to any organization.
+     */
+    public function withoutTeam(): static
+    {
+        return $this->newInstance(['afterCreating' => collect()]);
     }
 
     /**
