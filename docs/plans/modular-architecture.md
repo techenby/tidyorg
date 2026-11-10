@@ -48,7 +48,7 @@ Left for the phase that first needs them:
 
 - Per-module settings pages and per-organization module settings (the `settings` column exists; nothing reads it yet).
 - Module console commands and scheduled work; a module registers these itself in `bootModule()`.
-- `modules/` in `phpstan.neon`, added with the first real module because PHPStan rejects a path with no PHP files.
+- `modules/` in `phpstan.neon`, added with the first real module since there is nothing there to analyse yet.
 - A module booting through Composer package discovery has not been exercised; the fixtures are registered at test time. Phase 2 proves it.
 
 ## Phase 2: Inventory module
