@@ -10,7 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
 /**
- * Base service provider for a Tessera module.
+ * Base service provider for a Tidy Org module.
  *
  * A module describes itself by overriding the methods below. Everything it
  * contributes is wired up only when the module is active for this deployment,

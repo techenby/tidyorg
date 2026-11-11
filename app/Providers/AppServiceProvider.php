@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureTrustedProxies(): void
     {
-        $proxies = config('tessera.trusted_proxies');
+        $proxies = config('tidyorg.trusted_proxies');
 
         if (is_string($proxies) && trim($proxies) !== '') {
             TrustProxies::at(trim($proxies) === '*' ? '*' : array_map(trim(...), explode(',', $proxies)));

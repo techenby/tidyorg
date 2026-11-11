@@ -1,12 +1,12 @@
 <?php
 
-namespace Tessera\Inventory\Actions;
+namespace TidyOrg\Inventory\Actions;
 
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 class GenerateItemQrCode
 {

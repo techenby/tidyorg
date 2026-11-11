@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Inventory\Livewire\Forms;
+namespace TidyOrg\Inventory\Livewire\Forms;
 
 use App\Models\Team;
 use App\Modules\StoredFile;
@@ -8,10 +8,10 @@ use Closure;
 use Illuminate\Validation\Rule;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Form;
-use Tessera\Inventory\Actions\CreateItem;
-use Tessera\Inventory\Actions\UpdateItem;
-use Tessera\Inventory\Enums\ItemType;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Actions\CreateItem;
+use TidyOrg\Inventory\Actions\UpdateItem;
+use TidyOrg\Inventory\Enums\ItemType;
+use TidyOrg\Inventory\Models\Item;
 
 class ItemForm extends Form
 {

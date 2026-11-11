@@ -1,11 +1,11 @@
 <?php
 
-namespace Tessera\Inventory\Actions;
+namespace TidyOrg\Inventory\Actions;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 class DuplicateItem
 {

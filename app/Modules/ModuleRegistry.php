@@ -59,7 +59,7 @@ class ModuleRegistry
      */
     public function active(): Collection
     {
-        $configured = config('tessera.modules', '*');
+        $configured = config('tidyorg.modules', '*');
 
         if ($configured === '*') {
             return $this->installed();
@@ -118,7 +118,7 @@ class ModuleRegistry
             return false;
         }
 
-        if (config('tessera.single_organization')) {
+        if (config('tidyorg.single_organization')) {
             return true;
         }
 

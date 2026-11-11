@@ -1,9 +1,9 @@
 <?php
 
-namespace Tessera\Inventory\Actions;
+namespace TidyOrg\Inventory\Actions;
 
 use App\Modules\Person;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 class CheckOutItem
 {

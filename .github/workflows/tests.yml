@@ -38,7 +38,7 @@ jobs:
       - name: Run CI Checks
         run: composer ci:check
 
-  # Core must work with any subset of modules, on every database Tessera supports.
+  # Core must work with any subset of modules, on every database Tidy Org supports.
   # "none" proves core stands alone; each module alone proves it needs no other.
   modules:
     runs-on: ubuntu-latest
@@ -105,7 +105,7 @@ jobs:
           for directory in modules/*/; do
             key="$(basename "$directory")"
             if [ "$key" != "$KEEP" ]; then
-              composer remove "tessera/$key" --no-interaction
+              composer remove "tidyorg/$key" --no-interaction
             fi
           done
 

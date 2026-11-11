@@ -1,6 +1,6 @@
 # Choosing and removing modules
 
-Tessera ships with all of its modules. You decide which ones your install offers.
+Tidy Org ships with all of its modules. You decide which ones your install offers.
 
 ## See what is installed
 
@@ -12,22 +12,22 @@ With Docker, put `docker compose exec app` in front of every `php artisan` comma
 
 ## Choose which modules are available
 
-Set `TESSERA_MODULES` in `.env`:
+Set `TIDYORG_MODULES` in `.env`:
 
 ```
-TESSERA_MODULES=*
+TIDYORG_MODULES=*
 ```
 
 `*` means every installed module. To offer only some, list their keys:
 
 ```
-TESSERA_MODULES=inventory,members
+TIDYORG_MODULES=inventory,members
 ```
 
 Then apply the change. On a server install:
 
 ```sh
-php artisan tessera:upgrade
+php artisan tidyorg:upgrade
 ```
 
 With Docker, `docker compose up -d` does the same.
@@ -49,7 +49,7 @@ Turning a module off hides it and keeps its data.
 
 ## Remove a module completely
 
-Leaving a module out of `TESSERA_MODULES` hides it but keeps its data. To delete the data as well:
+Leaving a module out of `TIDYORG_MODULES` hides it but keeps its data. To delete the data as well:
 
 1. [Back up](backups.md) first. This cannot be undone.
 2. Delete the module's records, files, and database tables:
@@ -60,6 +60,6 @@ Leaving a module out of `TESSERA_MODULES` hides it but keeps its data. To delete
 
    It asks for confirmation. When the install hosts several organizations it refuses unless you add `--force`, or you can delete one organization's data and keep the tables with `--team=<slug>`.
 
-3. Take the module out of `TESSERA_MODULES` and apply the change as above. If you skip this step, the module's empty tables are created again.
+3. Take the module out of `TIDYORG_MODULES` and apply the change as above. If you skip this step, the module's empty tables are created again.
 
 The module's code stays on disk, unused. That is harmless, and it keeps upgrades simple.

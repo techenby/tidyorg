@@ -1,6 +1,6 @@
-# Self-hosting Tessera
+# Self-hosting Tidy Org
 
-Tessera runs on your own server at no cost. Everything in this repository works when self-hosted, and nothing needs a paid licence or an outside service.
+Tidy Org runs on your own server at no cost. Everything in this repository works when self-hosted, and nothing needs a paid licence or an outside service.
 
 There are two ways to run it. Pick one:
 
@@ -24,4 +24,4 @@ If you have no preference, use Docker. It bundles the web server, the database, 
 
 A self-hosted install normally serves one organization. The installer creates that organization and its first administrator. Everyone else joins by invitation, and nobody can sign up on their own.
 
-Tessera sends invitations and password resets by email, so set up [outgoing mail](configuration.md#outgoing-mail) before inviting anyone.
+Tidy Org sends invitations and password resets by email, so set up [outgoing mail](configuration.md#outgoing-mail) before inviting anyone.

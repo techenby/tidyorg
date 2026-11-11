@@ -38,7 +38,7 @@ class CreateNewUser implements CreatesNewUsers
      */
     private function requireInvitation(ValidatorInstance $validator): void
     {
-        if (! config('tessera.single_organization') || $validator->errors()->has('email')) {
+        if (! config('tidyorg.single_organization') || $validator->errors()->has('email')) {
             return;
         }
 

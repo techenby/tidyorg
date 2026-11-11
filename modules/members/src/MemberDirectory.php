@@ -1,12 +1,12 @@
 <?php
 
-namespace Tessera\Members;
+namespace TidyOrg\Members;
 
 use App\Models\Team;
 use App\Modules\Contracts\PeopleDirectory;
 use App\Modules\Person;
 use Illuminate\Support\Collection;
-use Tessera\Members\Models\Member;
+use TidyOrg\Members\Models\Member;
 
 /**
  * Offers the organization's members to other modules as a directory of people.

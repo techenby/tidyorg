@@ -23,7 +23,7 @@ class OrganizationPruneCommand extends Command
      */
     public function handle(PurgeTeam $purge): int
     {
-        $closedBefore = now()->subDays((int) config('tessera.closed_organization_days'));
+        $closedBefore = now()->subDays((int) config('tidyorg.closed_organization_days'));
 
         $purged = Team::onlyTrashed()
             ->where('deleted_at', '<=', $closedBefore)

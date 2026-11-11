@@ -31,7 +31,7 @@ class TeamPolicy
      */
     public function create(User $user): bool
     {
-        return ! config('tessera.single_organization') || ! Team::query()->exists();
+        return ! config('tidyorg.single_organization') || ! Team::query()->exists();
     }
 
     /**

@@ -8,7 +8,7 @@ use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    config(['tessera.single_organization' => true]);
+    config(['tidyorg.single_organization' => true]);
 });
 
 function invitationFor(string $email, array $attributes = []): TeamInvitation
@@ -61,7 +61,7 @@ test('an invitation that can no longer be accepted does not open registration', 
 ]);
 
 test('registration stays open when several organizations are hosted', function () {
-    config(['tessera.single_organization' => false]);
+    config(['tidyorg.single_organization' => false]);
 
     registerAs('sam@example.org')->assertSessionHasNoErrors();
 

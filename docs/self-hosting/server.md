@@ -1,6 +1,6 @@
 # Install on a server with PHP
 
-This guide installs Tessera from a release archive. The archive already contains the PHP libraries and the built front-end files, so the server needs neither Composer nor Node.
+This guide installs Tidy Org from a release archive. The archive already contains the PHP libraries and the built front-end files, so the server needs neither Composer nor Node.
 
 ## What the server needs
 
@@ -14,12 +14,12 @@ The installer checks the extensions and tells you which are missing.
 
 ## 1. Put the files in place
 
-Download `tessera-<version>.tar.gz` from the project's releases page and extract it where your sites live:
+Download `tidyorg-<version>.tar.gz` from the project's releases page and extract it where your sites live:
 
 ```sh
-mkdir -p /var/www/tessera
-tar -xzf tessera-<version>.tar.gz --strip-components=1 -C /var/www/tessera
-cd /var/www/tessera
+mkdir -p /var/www/tidyorg
+tar -xzf tidyorg-<version>.tar.gz --strip-components=1 -C /var/www/tidyorg
+cd /var/www/tidyorg
 ```
 
 The web server's user must be able to write to `storage/`, `bootstrap/cache/`, and, when you use SQLite, `database/`. On most Linux servers that user is `www-data`:
@@ -33,12 +33,12 @@ chown -R www-data:www-data storage bootstrap/cache database
 Run it as the same user the web server uses, so the files it creates are writable later:
 
 ```sh
-sudo -u www-data php artisan tessera:install
+sudo -u www-data php artisan tidyorg:install
 ```
 
 The installer asks for:
 
-1. The address people will use to open Tessera, for example `https://tessera.example.org`.
+1. The address people will use to open Tidy Org, for example `https://tidyorg.example.org`.
 2. The database. For anything other than SQLite, create an empty database and a user for it first; the installer tests the connection before going on.
 3. Whether the install serves one organization. Answer yes unless you plan to host several.
 4. Which modules you want.
@@ -46,7 +46,7 @@ The installer asks for:
 
 It writes the answers to `.env`, creates the database tables, and creates your account. You can run it again safely: it never creates a second administrator.
 
-To run it from a script, pass the answers as options and add `--no-interaction`. Without a `.env` file it then uses SQLite. See `php artisan tessera:install --help`.
+To run it from a script, pass the answers as options and add `--no-interaction`. Without a `.env` file it then uses SQLite. See `php artisan tidyorg:install --help`.
 
 ## 3. Point the web server at it
 
@@ -55,38 +55,38 @@ Serve the `public/` directory, never the directory above it. Send every request 
 With Caddy, which also sets up HTTPS for you:
 
 ```
-tessera.example.org {
-	root * /var/www/tessera/public
+tidyorg.example.org {
+	root * /var/www/tidyorg/public
 	encode zstd gzip
 	php_fastcgi unix//run/php/php8.4-fpm.sock
 	file_server
 }
 ```
 
-For nginx, use the server block from the [Laravel deployment guide](https://laravel.com/docs/deployment#nginx) with `root` set to `/var/www/tessera/public`.
+For nginx, use the server block from the [Laravel deployment guide](https://laravel.com/docs/deployment#nginx) with `root` set to `/var/www/tidyorg/public`.
 
 Uploaded photos can be up to 5 MB. Check that `upload_max_filesize` and `post_max_size` in `php.ini`, and `client_max_body_size` in nginx, allow at least that.
 
 ## 4. Keep the background work running
 
-Tessera sends email from a queue and tidies up once a day. Both need a little setup.
+Tidy Org sends email from a queue and tidies up once a day. Both need a little setup.
 
 Add one line to the web server user's crontab (`sudo crontab -u www-data -e`):
 
 ```
-* * * * * cd /var/www/tessera && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /var/www/tidyorg && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Keep one queue worker running. With systemd, save this as `/etc/systemd/system/tessera-queue.service`:
+Keep one queue worker running. With systemd, save this as `/etc/systemd/system/tidyorg-queue.service`:
 
 ```ini
 [Unit]
-Description=Tessera queue worker
+Description=Tidy Org queue worker
 After=network.target
 
 [Service]
 User=www-data
-WorkingDirectory=/var/www/tessera
+WorkingDirectory=/var/www/tidyorg
 ExecStart=/usr/bin/php artisan queue:work --tries=3 --max-time=3600
 Restart=always
 
@@ -97,7 +97,7 @@ WantedBy=multi-user.target
 Then start it:
 
 ```sh
-sudo systemctl enable --now tessera-queue
+sudo systemctl enable --now tidyorg-queue
 ```
 
 ## 5. Sign in
@@ -111,5 +111,5 @@ Developers can clone the repository instead of using the archive. That route nee
 ```sh
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
-php artisan tessera:install
+php artisan tidyorg:install
 ```

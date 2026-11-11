@@ -34,9 +34,9 @@
 
             <flux:spacer />
 
-            @if (config('tessera.source.url'))
+            @if (config('tidyorg.source.url'))
                 <flux:sidebar.nav>
-                    <flux:sidebar.item icon="folder-git-2" :href="config('tessera.source.url')" target="_blank" data-test="source-link">
+                    <flux:sidebar.item icon="folder-git-2" :href="config('tidyorg.source.url')" target="_blank" data-test="source-link">
                         {{ __('Source code') }}
                     </flux:sidebar.item>
                 </flux:sidebar.nav>

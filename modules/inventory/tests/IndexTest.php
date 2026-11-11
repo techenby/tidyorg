@@ -5,8 +5,8 @@ use App\Models\Team;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use Tessera\Inventory\Enums\ItemType;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Enums\ItemType;
+use TidyOrg\Inventory\Models\Item;
 
 beforeEach(function () {
     $this->owner = ownerWithModules('inventory');

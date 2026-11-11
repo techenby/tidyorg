@@ -33,7 +33,7 @@ class ExportTeam
             throw new RuntimeException('Exporting needs the PHP zip extension.');
         }
 
-        $working = tempnam(sys_get_temp_dir(), 'tessera-export-');
+        $working = tempnam(sys_get_temp_dir(), 'tidyorg-export-');
 
         if ($working === false) {
             throw new RuntimeException('The export could not be started because no temporary file could be created.');

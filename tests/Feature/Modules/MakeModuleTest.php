@@ -17,15 +17,15 @@ test('make:module scaffolds a module that installs and serves its page', functio
     $module = $this->path.'/event-planning';
 
     expect(json_decode(File::get($module.'/composer.json'), true))
-        ->name->toBe('tessera/event-planning')
-        ->extra->laravel->providers->toBe(['Tessera\\EventPlanning\\EventPlanningModule']);
+        ->name->toBe('tidyorg/event-planning')
+        ->extra->laravel->providers->toBe(['TidyOrg\\EventPlanning\\EventPlanningModule']);
 
     expect($module.'/tests/EventPlanningModuleTest.php')->toBeFile()
         ->and($module.'/database/migrations/.gitkeep')->toBeFile();
 
     require_once $module.'/src/EventPlanningModule.php';
 
-    installModules(['Tessera\\EventPlanning\\EventPlanningModule']);
+    installModules(['TidyOrg\\EventPlanning\\EventPlanningModule']);
 
     $owner = ownerWithModules('event-planning');
 

@@ -26,7 +26,7 @@
         </flux:field>
 
         <flux:select wire:model="form.type" :label="__('Type')">
-            @foreach (\Tessera\Inventory\Enums\ItemType::cases() as $type)
+            @foreach (\TidyOrg\Inventory\Enums\ItemType::cases() as $type)
                 <flux:select.option :value="$type->value">{{ __($type->label()) }}</flux:select.option>
             @endforeach
         </flux:select>

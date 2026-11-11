@@ -1,10 +1,10 @@
 <?php
 
-namespace Tessera\Inventory\Policies;
+namespace TidyOrg\Inventory\Policies;
 
 use App\Models\Team;
 use App\Models\User;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 /**
  * Every check goes through the organization's module permissions, which also

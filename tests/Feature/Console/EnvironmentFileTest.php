@@ -23,7 +23,7 @@ test('a missing file is created from the template', function () {
     $file->createFrom(base_path('.env.example'));
 
     expect($file->exists())->toBeTrue()
-        ->and($file->get('APP_NAME'))->toBe('Tessera');
+        ->and($file->get('APP_NAME'))->toBe('Tidy Org');
 });
 
 test('an existing file is not replaced by the template', function () {
@@ -36,16 +36,16 @@ test('an existing file is not replaced by the template', function () {
 });
 
 test('setting a variable replaces its line, uncomments it, or appends it', function () {
-    File::put($this->path, "APP_NAME=Tessera\n\n# The database\nDB_CONNECTION=sqlite\n# DB_HOST=127.0.0.1\n");
+    File::put($this->path, "APP_NAME=TidyOrg\n\n# The database\nDB_CONNECTION=sqlite\n# DB_HOST=127.0.0.1\n");
 
     (new EnvironmentFile($this->path))->set([
         'DB_CONNECTION' => 'pgsql',
         'DB_HOST' => 'db.internal',
-        'TESSERA_SINGLE_ORGANIZATION' => true,
+        'TIDYORG_SINGLE_ORGANIZATION' => true,
     ]);
 
     expect(File::get($this->path))->toBe(
-        "APP_NAME=Tessera\n\n# The database\nDB_CONNECTION=pgsql\nDB_HOST=db.internal\nTESSERA_SINGLE_ORGANIZATION=true\n"
+        "APP_NAME=TidyOrg\n\n# The database\nDB_CONNECTION=pgsql\nDB_HOST=db.internal\nTIDYORG_SINGLE_ORGANIZATION=true\n"
     );
 });
 
@@ -72,6 +72,6 @@ test('values read back exactly as they were given', function (string $value) {
     'double quote' => ['say "hi"'],
     'single quote' => ["it's"],
     'both quotes and a backslash' => ['it\'s "a" \\ $mix'],
-    'url' => ['https://tessera.example.org'],
+    'url' => ['https://tidyorg.example.org'],
     'key' => ['base64:abc+/=='],
 ]);

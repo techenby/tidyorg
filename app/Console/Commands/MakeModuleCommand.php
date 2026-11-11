@@ -9,7 +9,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
 #[Signature('make:module {name : The name of the module, such as "Events"} {--path= : The directory that holds modules; defaults to modules/}')]
-#[Description('Scaffold a new Tessera module')]
+#[Description('Scaffold a new Tidy Org module')]
 class MakeModuleCommand extends Command
 {
     /**
@@ -52,7 +52,7 @@ class MakeModuleCommand extends Command
         $this->components->info("Module [{$name}] created at [{$directory}].");
 
         $this->components->bulletList([
-            "Install it: composer require tessera/{$key}:@dev",
+            "Install it: composer require tidyorg/{$key}:@dev",
             "Enable it for an organization: php artisan module:enable {$key} --team=<slug>",
             "Prefix its tables with [{$key}_] and give every tenant-owned row a team_id.",
             'Read docs/architecture.md before adding to it.',

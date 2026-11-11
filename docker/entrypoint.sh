@@ -2,7 +2,7 @@
 set -e
 
 # One image, three roles. Anything else is run as given, for example:
-#   docker compose exec app php artisan tessera:install
+#   docker compose exec app php artisan tidyorg:install
 
 case "${1:-web}" in
     web)

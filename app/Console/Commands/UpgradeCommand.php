@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Throwable;
 
-#[Signature('tessera:upgrade')]
+#[Signature('tidyorg:upgrade')]
 #[Description('Finish an upgrade after the code is updated: migrate the database and rebuild the caches')]
 class UpgradeCommand extends Command
 {
@@ -27,7 +27,7 @@ class UpgradeCommand extends Command
     /**
      * Execute the console command.
      *
-     * Tessera stays in maintenance mode when a step fails, so a half-upgraded
+     * Tidy Org stays in maintenance mode when a step fails, so a half-upgraded
      * install is never served.
      */
     public function handle(): int
@@ -39,7 +39,7 @@ class UpgradeCommand extends Command
 
             if ($failure !== null) {
                 $this->components->error("The upgrade stopped at [{$command}]. {$failure}");
-                $this->components->warn('Tessera is still in maintenance mode. Fix the problem and run tessera:upgrade again, or run "php artisan up" to bring it back as it is.');
+                $this->components->warn('Tidy Org is still in maintenance mode. Fix the problem and run tidyorg:upgrade again, or run "php artisan up" to bring it back as it is.');
 
                 return self::FAILURE;
             }
@@ -47,7 +47,7 @@ class UpgradeCommand extends Command
 
         Artisan::call('up');
 
-        $this->components->info('Tessera is upgraded and back online.');
+        $this->components->info('Tidy Org is upgraded and back online.');
 
         return self::SUCCESS;
     }

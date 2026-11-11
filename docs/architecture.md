@@ -1,13 +1,13 @@
-# Tessera architecture
+# Tidy Org architecture
 
-Tessera is an open-source, self-hostable application that helps nonprofits manage their inventory, members, events, and similar day-to-day operations. A hosted version (Tessera Cloud) runs the same code for organizations that would rather not run a server.
+Tidy Org is an open-source, self-hostable application that helps nonprofits manage their inventory, members, events, and similar day-to-day operations. A hosted version (Tidy Org Cloud) runs the same code for organizations that would rather not run a server.
 
 This document is the standing guide for how the codebase is shaped. Read it before adding a feature, and update it when a decision here changes. The step-by-step build-out lives in [plans/modular-architecture.md](plans/modular-architecture.md).
 
 ## Goals
 
 1. **An organization only carries what it uses.** Inventory, members, events, and every future feature area is a module. A module that is switched off has no routes, navigation, scheduled work, or database tables. A module that is not installed has no code on disk.
-2. **Self-hosting is a first-class way to run Tessera.** A volunteer with basic server skills can install it, pick modules, and upgrade without a build pipeline or a paid licence for anything.
+2. **Self-hosting is a first-class way to run Tidy Org.** A volunteer with basic server skills can install it, pick modules, and upgrade without a build pipeline or a paid licence for anything.
 3. **Cloud is the same product, hosted.** Hosting is the service, not the features. Cloud adds billing, provisioning, and operations around the open-source app. It does not fork it and it has no exclusive features.
 4. **The structure is enforced by tests, not by memory.** The rules below are backed by architecture tests and CI jobs so that a contributor or agent who has not read this document still cannot break them silently.
 
@@ -30,7 +30,7 @@ Installed ⊇ active ⊇ enabled. Each level narrows the one before it.
 | Level | Scope | Controlled by | Effect when off |
 | --- | --- | --- | --- |
 | Installed | Deployment | `composer require` / `composer remove`, or which modules a Docker image is built with | No code, no third-party dependencies of that module |
-| Active | Deployment | `TESSERA_MODULES` in `.env` (default: every installed module) | Provider does nothing: no routes, nav, policies, schedule, or migrations |
+| Active | Deployment | `TIDYORG_MODULES` in `.env` (default: every installed module) | Provider does nothing: no routes, nav, policies, schedule, or migrations |
 | Enabled | Organization | Organization settings → Modules | Routes return 404 for that organization, nav entries and dashboard widgets are hidden |
 
 A typical self-hosted install has one organization and uses the first two switches. Cloud installs and activates everything and relies on the third, with plan entitlements deciding which modules an organization may enable.
@@ -42,8 +42,8 @@ app/                     Core
 app/Modules/             The module system: base provider, registry, middleware, contracts
 modules/
   inventory/             One Composer package per module
-    composer.json        name: tessera/inventory, type: tessera-module
-    src/                 Tessera\Inventory\ — models, actions, policies, enums, InventoryModule provider
+    composer.json        name: tidyorg/inventory, type: tidyorg-module
+    src/                 TidyOrg\Inventory\ — models, actions, policies, enums, InventoryModule provider
     database/            migrations, factories, seeders
     resources/views/     Livewire pages and Blade components
     routes/web.php
@@ -54,7 +54,7 @@ Dockerfile, compose.yaml The self-hosting image and the stack that runs it
 docs/                    This guide, plans, user guides, and self-hosting guides
 ```
 
-The root `composer.json` declares `modules/*` as a path repository and requires each first-party module. Removing a module from a deployment is `composer remove tessera/<module>`; its own third-party dependencies leave with it. That is the reason modules are Composer packages rather than folders under `app/`: Composer is the only thing that can remove a feature's dependencies along with the feature.
+The root `composer.json` declares `modules/*` as a path repository and requires each first-party module. Removing a module from a deployment is `composer remove tidyorg/<module>`; its own third-party dependencies leave with it. That is the reason modules are Composer packages rather than folders under `app/`: Composer is the only thing that can remove a feature's dependencies along with the feature.
 
 No module framework package (nwidart/laravel-modules, internachi/modular) is used. Path repositories plus Laravel's package discovery already provide everything needed, with nothing extra to keep compatible.
 
@@ -62,7 +62,7 @@ No module framework package (nwidart/laravel-modules, internachi/modular) is use
 
 These are the rules that keep modules removable. They are the most important part of this document.
 
-1. **Core never references a module.** Nothing in `app/`, `resources/`, `routes/`, `database/`, or `tests/` may mention a `Tessera\*` class, a module's route name, view, table, or config key. If core needs something from a module, the module registers it through an extension point.
+1. **Core never references a module.** Nothing in `app/`, `resources/`, `routes/`, `database/`, or `tests/` may mention a `TidyOrg\*` class, a module's route name, view, table, or config key. If core needs something from a module, the module registers it through an extension point.
 2. **Modules depend on core only through its public surface:** `Team`, `User`, the role and permission system, the app layout, Flux components, and the contracts in `app/Modules/`. Modules do not reach into core internals such as Fortify actions or settings pages.
 3. **A module may depend on another module only if it declares it**, both in its `composer.json` `require` and in its manifest. Dependencies must be acyclic. Enabling a module for an organization requires its dependencies to be enabled. Declare a dependency only when the module is meaningless without the other.
 4. **Prefer optional integration to hard dependency.** Inventory can check items out to members when Members is enabled, and works the same without it. It does this through a capability (see Extension points), so it never names the Members module. The check lives in the module that benefits, never in core.
@@ -72,7 +72,7 @@ These are the rules that keep modules removable. They are the most important par
 
 Enforcement:
 
-- Pest architecture tests (`tests/Feature/ArchTest.php`): `App` must not use `Tessera`; each module may use only core's public surface and the modules it requires.
+- Pest architecture tests (`tests/Feature/ArchTest.php`): `App` must not use `Tidy Org`; each module may use only core's public surface and the modules it requires.
 - CI runs the suite with zero modules installed, with each module alone, and with all of them, on SQLite, PostgreSQL, and MySQL.
 
 ## Extension points
@@ -129,7 +129,7 @@ The starter kit's `TeamPermission` enum cannot be extended from a package, so mo
 | Purge for an organization (`module:purge <key> --team=`) | Explicit, confirmed, destructive: deletes that organization's rows and stored files for the module. Tables stay. This is the only purge used on Cloud. |
 | Purge for a deployment (`module:purge <key>`) | Explicit, confirmed, destructive: rolls back the module's migrations and deletes its stored files. Required before uninstalling if the tables should go. Self-hosted only. |
 | Uninstall (`composer remove`) | Code and dependencies removed. Refuses while the module is active. |
-| Delete an organization (owner, in settings) | The organization is closed at once and nobody can open it. Its data stays for `TESSERA_CLOSED_ORGANIZATION_DAYS` (30 by default) in case it was a mistake. |
+| Delete an organization (owner, in settings) | The organization is closed at once and nobody can open it. Its data stays for `TIDYORG_CLOSED_ORGANIZATION_DAYS` (30 by default) in case it was a mistake. |
 | Purge an organization (`organization:prune` daily, or `organization:purge <slug>`) | Permanent. Every module that holds data runs its `purging` hook, then core deletes the organization, its memberships and invitations, and its whole `teams/<id>` directory on the disk. |
 | Export an organization (`organization:export <slug>`) | A zip on the default disk with core's records and, through each module's `exporting` hook, every module's records and files. Exports are deleted after a week. |
 
@@ -141,7 +141,7 @@ Deleting data is never a side effect of flipping a switch.
 
 **Community** is this repository, complete, licensed AGPL-3.0. Every module here is fully functional when self-hosted. Nothing is held back or limited to push people toward Cloud. If that ever changes it is a deliberate product decision recorded here, not something a feature quietly introduces.
 
-**Cloud** is this repository plus a private `tessera/cloud` package that plugs in through the same extension points and contracts as any module: subscription billing, plan limits, organization provisioning, and operator tooling. Core defines the contracts with permissive defaults (for example, `ModuleEntitlements` allows everything); the cloud package rebinds them. Because the cloud package runs in the same process as AGPL code, assume its source may have to be offered to Cloud users, and keep secrets and anything commercially sensitive in configuration, not code.
+**Cloud** is this repository plus a private `tidyorg/cloud` package that plugs in through the same extension points and contracts as any module: subscription billing, plan limits, organization provisioning, and operator tooling. Core defines the contracts with permissive defaults (for example, `ModuleEntitlements` allows everything); the cloud package rebinds them. Because the cloud package runs in the same process as AGPL code, assume its source may have to be offered to Cloud users, and keep secrets and anything commercially sensitive in configuration, not code.
 
 ### How Cloud is hosted
 
@@ -155,18 +155,18 @@ This shapes core and every module, whether or not a given change is "for Cloud":
 - **No deployment-wide destructive commands.** On Cloud, purging is per organization. Dropping a module's tables is a self-hosted operation.
 - **Work that takes time goes on the queue; recurring work goes on the scheduler.** Web processes may be stopped or scaled at any time, so nothing may rely on in-memory state or a long-lived request.
 - **PostgreSQL is the Cloud database** and therefore the primary one in CI. SQLite and MySQL/MariaDB remain supported for self-hosters.
-- **The source offer is in the interface.** The AGPL gives everyone who uses an install over a network the right to its source. `TESSERA_SOURCE_URL` and `TESSERA_SOURCE_REVISION` put a link to the repository and the running commit on the sign-in pages and in the sidebar. Cloud sets both; so must anyone who runs a modified copy.
-- **The Cloud deployment is built from a private deployment repository** that tracks this one and adds only the `tessera/cloud` requirement and its lock entry. This repository never mentions the cloud package.
+- **The source offer is in the interface.** The AGPL gives everyone who uses an install over a network the right to its source. `TIDYORG_SOURCE_URL` and `TIDYORG_SOURCE_REVISION` put a link to the repository and the running commit on the sign-in pages and in the sidebar. Cloud sets both; so must anyone who runs a modified copy.
+- **The Cloud deployment is built from a private deployment repository** that tracks this one and adds only the `tidyorg/cloud` requirement and its lock entry. This repository never mentions the cloud package.
 
 ### How self-hosting works
 
 Self-hosted deployments are multi-tenant-capable but normally hold one organization. The guides people follow are in [self-hosting/](self-hosting/README.md).
 
 - **Two supported ways to run it:** the container image (`Dockerfile`, `compose.yaml`, `docker/`) and a release archive on a server with PHP. Both ship every first-party module with assets already built, so a self-hoster never needs Node, and the archive needs no Composer either. `.github/workflows/release.yml` publishes both when a version tag is pushed.
-- **`php artisan tessera:install`** checks the server, writes `.env` (unless the settings come from the environment, as in a container), migrates, and creates the first administrator and organization. It is safe to run again.
-- **`php artisan tessera:upgrade`** is the whole upgrade after the code is replaced: maintenance mode, migrate, rebuild caches, restart queue workers. A release must not need any other manual step. If one does, add it to this command. The container does the same on start.
-- **Single-organization mode** (`TESSERA_SINGLE_ORGANIZATION`) is what the installer sets by default. Registration needs a pending invitation, a second organization cannot be created, every active module is enabled, and the home page goes to sign-in. The rules live in `TeamPolicy::create` and `CreateNewUser`, so interface code asks `@can('create', Team::class)` instead of reading the setting.
-- **The caches are built in production.** Configuration and routes are cached by `tessera:upgrade` and by the container, so `env()` is only ever called in `config/`, and every setting a self-hoster may change is listed in `config/tessera.php`, `.env.example`, `compose.yaml`, and [self-hosting/configuration.md](self-hosting/configuration.md).
+- **`php artisan tidyorg:install`** checks the server, writes `.env` (unless the settings come from the environment, as in a container), migrates, and creates the first administrator and organization. It is safe to run again.
+- **`php artisan tidyorg:upgrade`** is the whole upgrade after the code is replaced: maintenance mode, migrate, rebuild caches, restart queue workers. A release must not need any other manual step. If one does, add it to this command. The container does the same on start.
+- **Single-organization mode** (`TIDYORG_SINGLE_ORGANIZATION`) is what the installer sets by default. Registration needs a pending invitation, a second organization cannot be created, every active module is enabled, and the home page goes to sign-in. The rules live in `TeamPolicy::create` and `CreateNewUser`, so interface code asks `@can('create', Team::class)` instead of reading the setting.
+- **The caches are built in production.** Configuration and routes are cached by `tidyorg:upgrade` and by the container, so `env()` is only ever called in `config/`, and every setting a self-hoster may change is listed in `config/tidyorg.php`, `.env.example`, `compose.yaml`, and [self-hosting/configuration.md](self-hosting/configuration.md).
 
 ## Constraints that follow from being open source
 
@@ -178,7 +178,7 @@ Self-hosted deployments are multi-tenant-capable but normally hold one organizat
 
 ## Adding a feature: where does it go?
 
-- It serves every organization regardless of what they use Tessera for (accounts, roles, audit log, notifications plumbing, file storage helpers) → **core**.
+- It serves every organization regardless of what they use Tidy Org for (accounts, roles, audit log, notifications plumbing, file storage helpers) → **core**.
 - It is a distinct area some organizations will not want → **a module**. When unsure, make it a module; promoting to core later is easy, extracting from core is not.
 - It only makes sense for the hosted service (billing, plan limits, support tooling) → **the cloud package**, behind a core contract.
 - It connects two modules → it lives in the module that depends on the other, guarded by an enabled check.
@@ -187,9 +187,9 @@ Self-hosted deployments are multi-tenant-capable but normally hold one organizat
 
 Settled on 2026-11-10:
 
-1. **Licence: AGPL-3.0**, the same as Snipe-IT. Anyone may self-host and modify Tessera; anyone offering a modified version as a service must publish their changes.
+1. **Licence: AGPL-3.0**, the same as Snipe-IT. Anyone may self-host and modify Tidy Org; anyone offering a modified version as a service must publish their changes.
 2. **No personal teams.** A user belongs to zero or more organizations. The starter kit's personal-team behaviour is removed in phase 0.
-3. **Full set first, slim later.** Tessera ships with every first-party module installed and uses the activation switch to choose among them. `composer remove` works for those who want the code gone. Packagist-published modules or per-module Docker builds wait until self-hosters ask.
+3. **Full set first, slim later.** Tidy Org ships with every first-party module installed and uses the activation switch to choose among them. `composer remove` works for those who want the code gone. Packagist-published modules or per-module Docker builds wait until self-hosters ask.
 4. **Hosting is the service, not the features.** No module or capability is Cloud-only at this time.
 5. **Cloud runs on Laravel Cloud** as a single multi-tenant deployment.
 

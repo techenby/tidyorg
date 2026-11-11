@@ -50,9 +50,9 @@ RUN install-php-extensions \
 
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY docker/php.ini "$PHP_INI_DIR/conf.d/tessera.ini"
+COPY docker/php.ini "$PHP_INI_DIR/conf.d/tidyorg.ini"
 COPY docker/Caddyfile /etc/frankenphp/Caddyfile
-COPY docker/entrypoint.sh /usr/local/bin/tessera
+COPY docker/entrypoint.sh /usr/local/bin/tidyorg
 
 WORKDIR /app
 
@@ -61,8 +61,8 @@ COPY --from=vendor /app/vendor ./vendor
 COPY --from=assets /app/public/build ./public/build
 
 # Run as an unprivileged user that owns only what the app writes to.
-RUN useradd --system --no-create-home tessera \
-    && chmod +x /usr/local/bin/tessera \
+RUN useradd --system --no-create-home tidyorg \
+    && chmod +x /usr/local/bin/tidyorg \
     && mkdir -p \
         bootstrap/cache \
         storage/app/private \
@@ -72,9 +72,9 @@ RUN useradd --system --no-create-home tessera \
         storage/framework/views \
         storage/logs \
     && php artisan package:discover --ansi \
-    && chown -R tessera:tessera storage bootstrap/cache database /data /config
+    && chown -R tidyorg:tidyorg storage bootstrap/cache database /data /config
 
-USER tessera
+USER tidyorg
 
 ENV APP_ENV=production \
     APP_DEBUG=false \
@@ -82,5 +82,5 @@ ENV APP_ENV=production \
 
 EXPOSE 8080
 
-ENTRYPOINT ["tessera"]
+ENTRYPOINT ["tidyorg"]
 CMD ["web"]

@@ -34,12 +34,12 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
-        <env name="TESSERA_MODULES" value="*"/>
-        <env name="TESSERA_SINGLE_ORGANIZATION" value="false"/>
-        <env name="TESSERA_TRUSTED_PROXIES" value=""/>
-        <env name="TESSERA_SOURCE_URL" value=""/>
-        <env name="TESSERA_SOURCE_REVISION" value=""/>
-        <env name="TESSERA_CLOSED_ORGANIZATION_DAYS" value="30"/>
+        <env name="TIDYORG_MODULES" value="*"/>
+        <env name="TIDYORG_SINGLE_ORGANIZATION" value="false"/>
+        <env name="TIDYORG_TRUSTED_PROXIES" value=""/>
+        <env name="TIDYORG_SOURCE_URL" value=""/>
+        <env name="TIDYORG_SOURCE_REVISION" value=""/>
+        <env name="TIDYORG_CLOSED_ORGANIZATION_DAYS" value="30"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

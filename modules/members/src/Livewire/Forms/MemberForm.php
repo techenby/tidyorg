@@ -1,10 +1,10 @@
 <?php
 
-namespace Tessera\Members\Livewire\Forms;
+namespace TidyOrg\Members\Livewire\Forms;
 
 use App\Models\Team;
 use Livewire\Form;
-use Tessera\Members\Models\Member;
+use TidyOrg\Members\Models\Member;
 
 class MemberForm extends Form
 {

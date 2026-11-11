@@ -6,7 +6,7 @@ This plan turns the rules in [../architecture.md](../architecture.md) into worki
 
 ## Starting point
 
-- Tessera is the Laravel Livewire starter kit with Teams: Laravel 13, Livewire 4, free Flux, Fortify, Pest. Routes are prefixed with `{current_team}` and guarded by `EnsureTeamMembership`. Roles are the `TeamRole` enum (owner, admin, member) with a fixed `TeamPermission` enum.
+- Tidy Org is the Laravel Livewire starter kit with Teams: Laravel 13, Livewire 4, free Flux, Fortify, Pest. Routes are prefixed with `{current_team}` and guarded by `EnsureTeamMembership`. Roles are the `TeamRole` enum (owner, admin, member) with a fixed `TeamPermission` enum.
 - Sunny's inventory lives in `sunny/web`: one `Item` model (self-nesting, typed as location, bin, or item, soft-deleted, with photo, thumbnail, and JSON metadata), six actions, a policy, two Livewire pages with modals (about 2,500 lines including tests), a QR-code deep link, a REST API controller, and eight MCP tools.
 
 ## Phase 0: Foundations
@@ -15,7 +15,7 @@ Decisions and housekeeping that are cheap now and expensive later.
 
 - [x] `git init`, first commit of the untouched starter kit so later diffs are readable.
 - [x] Apply AGPL-3.0: add `LICENSE.md` with the full licence text, set `"license": "AGPL-3.0-or-later"` in `composer.json`, and state it in the README.
-- [x] Rename the package in `composer.json` from `laravel/livewire-starter-kit` to `tessera/tessera`.
+- [x] Rename the package in `composer.json` from `laravel/livewire-starter-kit` to `tidyorg/tidyorg`.
 - [x] Remove personal teams: drop `is_personal`, adjust `CreateNewUser`, registration, and the team switcher, handle a signed-in user with no organization, and add an onboarding step that creates or joins one.
 - [x] Change UI copy from "team" to "organization", and the settings URLs to `settings/organizations`. Class, table, route, and route-parameter names stay as `team` so starter-kit updates still apply.
 - [x] Remove the `@source` line for `flux-pro` from `resources/css/app.css`.
@@ -30,7 +30,7 @@ Completed 2026-11-10. The mechanism exists with no real module yet, proven by tw
 
 - [x] `App\Modules\Module`: abstract service provider. Subclasses declare `key()`, `name()`, `path()`, and optionally `description()`, `icon()`, `dependencies()`, `permissions()`, `navigation()`, `widgets()`, and the `enabling()`, `disabled()`, `purging()` hooks. Routes, views, migrations, and translations are wired only when the module is active.
 - [x] `App\Modules\ModuleRegistry` (singleton, `App\Modules\Facades\Modules`): `installed()`, `active()`, `enabled()`, `enabledFor()`, `navigationFor()`, `widgetsFor()`, `allows()`. The app refuses to boot when an active module's dependency is inactive or dependencies are circular.
-- [x] `config/tessera.php`: `modules` (`TESSERA_MODULES`, default `*`) and `single_organization` (`TESSERA_SINGLE_ORGANIZATION`).
+- [x] `config/tidyorg.php`: `modules` (`TIDYORG_MODULES`, default `*`) and `single_organization` (`TIDYORG_SINGLE_ORGANIZATION`).
 - [x] `team_modules` table, `TeamModule` model, `Team::modules()`.
 - [x] `EnsureModuleEnabled` middleware, aliased `module`: 404 unless enabled for the route's organization.
 - [x] Route wiring: a module's `routes/web.php` is wrapped in `{current_team}/<key>`, the `web`, `auth`, `verified`, `EnsureTeamMembership`, and `module:<key>` middleware, and the `<key>.` name prefix.
@@ -41,7 +41,7 @@ Completed 2026-11-10. The mechanism exists with no real module yet, proven by tw
 - [x] `ModuleEntitlements` contract, default `AllowAllModules`. Bound with `bindIf` so a hosting package's binding wins.
 - [x] `EnableModule` and `DisableModule` actions; commands `module:list`, `module:enable`, `module:disable`, `module:purge`.
 - [x] Root wiring: `modules/*` Composer path repository, `Modules` PHPUnit suite, Pest and Tailwind sources.
-- [x] Architecture test: nothing in `App` uses `Tessera`.
+- [x] Architecture test: nothing in `App` uses `Tidy Org`.
 - [x] Fixture modules under `tests/Fixtures/Modules`, registered in tests with the `installModules()` helper.
 
 Left for the phase that first needs them:
@@ -53,7 +53,7 @@ Left for the phase that first needs them:
 
 ## Phase 2: Inventory module
 
-Done. Sunny's inventory now lives in `modules/inventory` (`tessera/inventory`, namespace `Tessera\Inventory`), installed through the path repository and found by package discovery.
+Done. Sunny's inventory now lives in `modules/inventory` (`tidyorg/inventory`, namespace `TidyOrg\Inventory`), installed through the path repository and found by package discovery.
 
 Brought across:
 
@@ -61,7 +61,7 @@ Brought across:
 - [x] `Item` model, `ItemType` enum, `ItemFactory`, and one squashed migration for `inventory_items`.
 - [x] Actions: `CreateItem`, `UpdateItem`, `DuplicateItem`, `MoveItemToTeam`, `GenerateItemQrCode`, plus `StoreItemPhoto` and `CreateThumbnail`.
 - [x] `ItemPolicy` on module permissions: `inventory:view` (member), `inventory:manage` (member), `inventory:delete` (admin).
-- [x] Index and show pages with their modals, as `inventory::index` and `inventory::show`. They share the abstract `Tessera\Inventory\Livewire\InventoryPage` class, a class rather than a trait so PHPStan analyses it.
+- [x] Index and show pages with their modals, as `inventory::index` and `inventory::show`. They share the abstract `TidyOrg\Inventory\Livewire\InventoryPage` class, a class rather than a trait so PHPStan analyses it.
 - [x] The `i/{item}` QR deep link, registered by the module and limited to numeric ids so it cannot shadow an organization whose slug is `i`.
 - [x] Dashboard widget of recently added items.
 - [x] User documentation in `docs/users/inventory.md`.
@@ -89,7 +89,7 @@ Left behind for now:
 - REST API, MCP tools, and `client_uuid` mobile sync. These come back in phase 6 once core has an API story.
 - A searchable parent picker. The native select is fine for hundreds of items and will want replacing for thousands.
 
-Verified: `composer remove tessera/inventory` leaves an app whose core suite passes. Two core tests assumed no module was installed and now set that up themselves.
+Verified: `composer remove tidyorg/inventory` leaves an app whose core suite passes. Two core tests assumed no module was installed and now set that up themselves.
 
 After the straight port, a separate pass should fit the model to nonprofits, which is a product conversation rather than a porting task: quantities and units, condition, value and funding source for grant and insurance reporting, and check-out to people (which will want the Members module).
 
@@ -97,7 +97,7 @@ After the straight port, a separate pass should fit the model to nonprofits, whi
 
 Done. Members is the second module, and making Inventory use it without depending on it produced the one new extension point.
 
-- [x] `modules/members` (`tessera/members`): a directory of people who do not need accounts, with name, email, phone, join date, and notes. `members:view` is held by members, `members:manage` by admins.
+- [x] `modules/members` (`tidyorg/members`): a directory of people who do not need accounts, with name, email, phone, join date, and notes. `members:view` is held by members, `members:manage` by admins.
 - [x] Optional integration: an item can be checked out to a person and checked back in. Inventory offers this only while a module enabled for the organization provides a people directory, and shows nothing otherwise.
 - [x] **Capabilities**, the extension point this forced. Core owns `App\Modules\Contracts\PeopleDirectory`; Members provides it through `Module::capabilities()`; Inventory asks `Modules::capability()`. Neither module names the other, so there is no dependency to declare and either installs alone.
 - [x] Architecture tests generated from each `modules/*/composer.json`: no use of an undeclared module, and no reaching into core outside its public surface.
@@ -115,12 +115,12 @@ Notes:
 
 Done. The guides are in [../self-hosting/](../self-hosting/README.md).
 
-- [x] `php artisan tessera:install`: checks PHP extensions and writable directories, asks for the address, database (testing the connection), one organization or several, and modules, writes `.env`, migrates, and creates the first administrator and organization. After writing `.env` it finishes in a new process so the new settings apply. It skips the `.env` step when settings come from the environment, and never creates a second administrator.
-- [x] `php artisan tessera:upgrade`: maintenance mode, migrate, clear and rebuild caches, restart queue workers. It stays in maintenance mode when a step fails.
-- [x] `Dockerfile`, `compose.yaml`, and `docker/`: one image (FrankenPHP, PHP 8.5, unprivileged user) run as the web server, the queue worker, and the scheduler, with PostgreSQL. Every first-party module is installed, `TESSERA_MODULES` chooses which are active, and assets are built in the image.
+- [x] `php artisan tidyorg:install`: checks PHP extensions and writable directories, asks for the address, database (testing the connection), one organization or several, and modules, writes `.env`, migrates, and creates the first administrator and organization. After writing `.env` it finishes in a new process so the new settings apply. It skips the `.env` step when settings come from the environment, and never creates a second administrator.
+- [x] `php artisan tidyorg:upgrade`: maintenance mode, migrate, clear and rebuild caches, restart queue workers. It stays in maintenance mode when a step fails.
+- [x] `Dockerfile`, `compose.yaml`, and `docker/`: one image (FrankenPHP, PHP 8.5, unprivileged user) run as the web server, the queue worker, and the scheduler, with PostgreSQL. Every first-party module is installed, `TIDYORG_MODULES` chooses which are active, and assets are built in the image.
 - [x] `.github/workflows/release.yml`: a version tag publishes a ready-to-run archive (code, PHP dependencies, built assets) and pushes the image to the GitHub container registry.
 - [x] Single-organization mode: registration only with a pending invitation, no second organization, the home page goes to sign-in.
-- [x] `TESSERA_TRUSTED_PROXIES`, for installs behind a reverse proxy that handles HTTPS.
+- [x] `TIDYORG_TRUSTED_PROXIES`, for installs behind a reverse proxy that handles HTTPS.
 - [x] Self-hosting documentation: Docker install, server install, configuration, modules (choosing and removing completely), backups and restoring, upgrading.
 - [ ] Revisit slim distribution (Packagist modules, per-module image builds) only if self-hosters ask for it.
 
@@ -141,11 +141,11 @@ Paying customers are hosted on Laravel Cloud as one multi-tenant deployment. Use
 
 Done in this repository (2026-11-10):
 
-- [x] Per-organization deletion: `PurgeTeam` runs every module's `purging` hook and removes the organization and its files. Deleting in settings closes the organization; `organization:prune` purges it after `TESSERA_CLOSED_ORGANIZATION_DAYS`; `organization:purge` does it at once. Before this, deleting an organization left all of its module data and files behind.
+- [x] Per-organization deletion: `PurgeTeam` runs every module's `purging` hook and removes the organization and its files. Deleting in settings closes the organization; `organization:prune` purges it after `TIDYORG_CLOSED_ORGANIZATION_DAYS`; `organization:purge` does it at once. Before this, deleting an organization left all of its module data and files behind.
 - [x] Per-organization export: `ExportTeam` and `organization:export`, with an `exporting` hook on every module. Run by an operator for now.
-- [x] The source offer AGPL requires: `TESSERA_SOURCE_URL` and `TESSERA_SOURCE_REVISION` link the repository and the running commit from the sign-in pages and the sidebar.
+- [x] The source offer AGPL requires: `TIDYORG_SOURCE_URL` and `TIDYORG_SOURCE_REVISION` link the repository and the running commit from the sign-in pages and the sidebar.
 - [x] Migration review: every migration to date either creates a table or adds nullable columns (`inventory_items.checked_out_to`, `checked_out_at`), so all are safe to run while the previous release is serving.
-- [x] Audit for local disk and in-memory state. Uploads, thumbnails, exports, and Livewire's temporary uploads all go through the default disk. Sessions, cache, and the queue are database-backed. Nothing is held between requests. Two settings matter on Cloud: `APP_MAINTENANCE_DRIVER=cache`, because the default writes a file to local disk, and `TESSERA_TRUSTED_PROXIES=*`.
+- [x] Audit for local disk and in-memory state. Uploads, thumbnails, exports, and Livewire's temporary uploads all go through the default disk. Sessions, cache, and the queue are database-backed. Nothing is held between requests. Two settings matter on Cloud: `APP_MAINTENANCE_DRIVER=cache`, because the default writes a file to local disk, and `TIDYORG_TRUSTED_PROXIES=*`.
 - [x] No new core contract was needed for billing. A hosting package can add its own middleware to the `web` group to block an unpaid organization, and `ModuleEntitlements` already covers which modules a plan includes. Add a limits contract only when a plan with a limit exists.
 
 - [x] An owner can export their organization's data from settings; the link arrives by email (`team:export` permission, owners only).
@@ -153,9 +153,9 @@ Done in this repository (2026-11-10):
 
 Done outside this repository (2026-11-10):
 
-- [x] Private `tessera/cloud` package (`techenby/tessera-cloud`, v0.1.0): Stripe billing through Cashier with one flat price per organization, a 14-day trial with no card, a check that sends a lapsed organization's pages to its billing page, the billing page, cancelling the subscription when an organization is closed, optional closing of lapsed organizations, `cloud:organizations` for the operator, a permissive `ModuleEntitlements`, and the S3 driver. Its billing tables are its own (`cloud_accounts`, `cloud_subscriptions`, `cloud_subscription_items`); no core table is altered.
-- [x] Private deployment repository (`techenby/tessera-deploy`): this repository plus the package as a `git subtree` in `cloud/` and the `composer.json` and lock change that install it. The package is carried in the repository rather than downloaded by Composer, so the build needs no GitHub token. `CLOUD.md` there is the runbook.
-- [x] Laravel Cloud application `tessera`, production environment in us-east-2: the smallest Flex instance with scale-to-zero, serverless PostgreSQL, a private object storage bucket as the default disk, a queue worker, the scheduler, and the settings from the audit above. Build runs `php artisan optimize`; deploy runs `php artisan migrate --force` (not `tessera:upgrade`, because Laravel Cloud restarts workers and swaps releases itself).
+- [x] Private `tidyorg/cloud` package (`techenby/tidyorg-cloud`, v0.1.0): Stripe billing through Cashier with one flat price per organization, a 14-day trial with no card, a check that sends a lapsed organization's pages to its billing page, the billing page, cancelling the subscription when an organization is closed, optional closing of lapsed organizations, `cloud:organizations` for the operator, a permissive `ModuleEntitlements`, and the S3 driver. Its billing tables are its own (`cloud_accounts`, `cloud_subscriptions`, `cloud_subscription_items`); no core table is altered.
+- [x] Private deployment repository (`techenby/tidyorg-deploy`): this repository plus the package as a `git subtree` in `cloud/` and the `composer.json` and lock change that install it. The package is carried in the repository rather than downloaded by Composer, so the build needs no GitHub token. `CLOUD.md` there is the runbook.
+- [x] Laravel Cloud application `tidyorg`, production environment in us-east-2: the smallest Flex instance with scale-to-zero, serverless PostgreSQL, a private object storage bucket as the default disk, a queue worker, the scheduler, and the settings from the audit above. Build runs `php artisan optimize`; deploy runs `php artisan migrate --force` (not `tidyorg:upgrade`, because Laravel Cloud restarts workers and swaps releases itself).
 
 Still to do:
 
@@ -173,7 +173,7 @@ Done when: a new customer can sign up, pay, create an organization, enable modul
 
 - [ ] API and MCP extension points in core, then restore Inventory's API controller and MCP tools from Sunny on top of them.
 - [ ] Further modules: Events, then whatever early users ask for (volunteers, donations, documents).
-- [ ] Module API versioning once third parties might write modules: the root package provides a virtual `tessera/module-api` version that modules require. Confirm Composer honours `provide` on the root package before relying on it.
+- [ ] Module API versioning once third parties might write modules: the root package provides a virtual `tidyorg/module-api` version that modules require. Confirm Composer honours `provide` on the root package before relying on it.
 
 ## Risks
 
@@ -181,7 +181,7 @@ Done when: a new customer can sign up, pay, create an organization, enable modul
 | --- | --- |
 | Core quietly grows a reference to a module and removal breaks | Architecture test plus the core-only CI job, from phase 1 onward |
 | Extension points designed around one module do not fit the next | Phase 3 exists for this; the scaffold command waits until after it |
-| Starter-kit updates conflict with Tessera's changes | Keep `Team` naming in code, keep core changes to the kit small and additive, record the upstream commit Tessera started from |
+| Starter-kit updates conflict with Tidy Org's changes | Keep `Team` naming in code, keep core changes to the kit small and additive, record the upstream commit Tidy Org started from |
 | Module migrations and core migrations interleave unpredictably | Modules only reference core tables that exist in the initial schema or declare the dependency; purge rolls back by module path, not by batch |
 | Flux Pro creeps back in through copied Sunny code | Flux Pro is not in `composer.json`, so any Pro tag fails in tests immediately |
 | `composer remove` on a git checkout makes upgrades conflict | The self-hosting guides never use it: the activation switch hides a module, `module:purge` deletes its data, and its code stays on disk |

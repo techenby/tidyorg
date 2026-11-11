@@ -1,6 +1,6 @@
 # Install with Docker
 
-`compose.yaml` runs everything Tessera needs: the web server, a queue worker, the scheduler, and a PostgreSQL database. The image is built with every module and with the front-end files already compiled.
+`compose.yaml` runs everything Tidy Org needs: the web server, a queue worker, the scheduler, and a PostgreSQL database. The image is built with every module and with the front-end files already compiled.
 
 You need Docker with the Compose plugin, or Podman with a Compose provider.
 
@@ -17,26 +17,26 @@ echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env
 echo "DB_PASSWORD=$(openssl rand -hex 24)" >> .env
 ```
 
-Then add the address people will use to open Tessera:
+Then add the address people will use to open Tidy Org:
 
 ```
-APP_URL=https://tessera.example.org
+APP_URL=https://tidyorg.example.org
 ```
 
 Keep a copy of this file somewhere safe. Without `APP_KEY`, two-factor sign-in secrets in a backup cannot be read.
 
-## 3. Start Tessera
+## 3. Start Tidy Org
 
 ```sh
 docker compose up -d --build
 ```
 
-The first run builds the image, which takes several minutes. Once it is up, Tessera creates its database tables and listens on port 8080.
+The first run builds the image, which takes several minutes. Once it is up, Tidy Org creates its database tables and listens on port 8080.
 
 ## 4. Create your account
 
 ```sh
-docker compose exec app php artisan tessera:install
+docker compose exec app php artisan tidyorg:install
 ```
 
 It asks for your name, email address, a password, and the name of your organization. Then open the address from step 2 and sign in.
@@ -46,7 +46,7 @@ It asks for your name, email address, a password, and the name of your organizat
 The container speaks plain HTTP on port 8080. For anything beyond a test on your own computer, put a reverse proxy that handles HTTPS in front of it, such as Caddy, nginx, or Traefik, and add this to `.env`:
 
 ```
-TESSERA_TRUSTED_PROXIES=*
+TIDYORG_TRUSTED_PROXIES=*
 ```
 
 Then run `docker compose up -d` again. See [configuration.md](configuration.md#address-and-https) for what this setting does.
@@ -60,10 +60,10 @@ These go in the `.env` file next to `compose.yaml`. Run `docker compose up -d` a
 | `APP_KEY` | none, required | Encrypts sessions and secrets. Never change it on a running install. |
 | `DB_PASSWORD` | none, required | Password for the bundled database. Changing it later does not change the password inside an existing database. |
 | `APP_URL` | `http://localhost:8080` | The public address. |
-| `TESSERA_PORT` | `8080` | The port on the host. |
-| `TESSERA_SINGLE_ORGANIZATION` | `true` | See [configuration.md](configuration.md#one-organization-or-several). |
-| `TESSERA_MODULES` | `*` | See [modules.md](modules.md). |
-| `TESSERA_TRUSTED_PROXIES` | empty | See step 5. |
+| `TIDYORG_PORT` | `8080` | The port on the host. |
+| `TIDYORG_SINGLE_ORGANIZATION` | `true` | See [configuration.md](configuration.md#one-organization-or-several). |
+| `TIDYORG_MODULES` | `*` | See [modules.md](modules.md). |
+| `TIDYORG_TRUSTED_PROXIES` | empty | See step 5. |
 | `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | mail is written to the log | See [configuration.md](configuration.md#outgoing-mail). |
 
 ## Everyday commands

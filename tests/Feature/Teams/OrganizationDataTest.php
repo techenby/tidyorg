@@ -71,7 +71,7 @@ test('an export includes a module that was switched off after it was used', func
     $team = User::factory()->create()->currentTeam;
     thingFor($team, 'Kept');
 
-    config(['tessera.modules' => []]);
+    config(['tidyorg.modules' => []]);
 
     $path = app(ExportTeam::class)->handle($team);
 
@@ -133,7 +133,7 @@ test('purging reaches a module that was switched off after it was used', functio
     $team = User::factory()->create()->currentTeam;
     thingFor($team, 'Thing');
 
-    config(['tessera.modules' => []]);
+    config(['tidyorg.modules' => []]);
 
     app(PurgeTeam::class)->handle($team);
 
@@ -167,7 +167,7 @@ test('organization:purge reaches an organization that was already closed', funct
 
 test('organization:prune purges organizations closed long enough ago and leaves the rest', function () {
     installModules();
-    config(['tessera.closed_organization_days' => 30]);
+    config(['tidyorg.closed_organization_days' => 30]);
 
     $open = User::factory()->create()->currentTeam;
     $recentlyClosed = User::factory()->create()->currentTeam;

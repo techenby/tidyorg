@@ -1,11 +1,11 @@
 <?php
 
-namespace Tessera\Inventory\Actions;
+namespace TidyOrg\Inventory\Actions;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 class StoreItemPhoto
 {

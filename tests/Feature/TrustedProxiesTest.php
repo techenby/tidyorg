@@ -9,7 +9,7 @@ afterEach(function () {
 
 function bootWithTrustedProxies(?string $proxies): void
 {
-    config(['tessera.trusted_proxies' => $proxies]);
+    config(['tidyorg.trusted_proxies' => $proxies]);
 
     (new AppServiceProvider(app()))->boot();
 }

@@ -22,7 +22,7 @@ test('organization settings list the active modules', function () {
 });
 
 test('organization settings have no modules section when none are active', function () {
-    config(['tessera.modules' => []]);
+    config(['tidyorg.modules' => []]);
 
     $owner = User::factory()->create();
 
@@ -34,7 +34,7 @@ test('organization settings have no modules section when none are active', funct
 
 test('organization settings have no modules section in single organization mode', function () {
     installModules();
-    config(['tessera.single_organization' => true]);
+    config(['tidyorg.single_organization' => true]);
 
     $owner = User::factory()->create();
 

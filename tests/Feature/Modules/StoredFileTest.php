@@ -32,10 +32,10 @@ test('a file on object storage gets a temporary link', function () {
         'key' => 'key',
         'secret' => 'secret',
         'region' => 'us-east-1',
-        'bucket' => 'tessera',
+        'bucket' => 'tidyorg',
     ]]);
 
     expect(StoredFile::url('teams/1/photo.txt', 's3'))
-        ->toContain('tessera')
+        ->toContain('tidyorg')
         ->toContain('X-Amz-Signature=');
 })->skip(! class_exists(AwsS3V3Adapter::class), 'The S3 driver is not installed.');

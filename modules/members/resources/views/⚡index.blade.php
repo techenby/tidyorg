@@ -11,8 +11,8 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Tessera\Members\Livewire\Forms\MemberForm;
-use Tessera\Members\Models\Member;
+use TidyOrg\Members\Livewire\Forms\MemberForm;
+use TidyOrg\Members\Models\Member;
 
 new #[Title('Members')] class extends Component {
     use WithPagination;

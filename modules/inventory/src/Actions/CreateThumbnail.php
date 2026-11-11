@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Inventory\Actions;
+namespace TidyOrg\Inventory\Actions;
 
 use GdImage;
 use Illuminate\Support\Facades\Storage;

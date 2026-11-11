@@ -1,10 +1,10 @@
 <?php
 
-namespace Tessera\Members\Database\Factories;
+namespace TidyOrg\Members\Database\Factories;
 
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Tessera\Members\Models\Member;
+use TidyOrg\Members\Models\Member;
 
 /**
  * @extends Factory<Member>

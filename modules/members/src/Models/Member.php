@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Members\Models;
+namespace TidyOrg\Members\Models;
 
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Tessera\Members\Database\Factories\MemberFactory;
+use TidyOrg\Members\Database\Factories\MemberFactory;
 
 /**
  * A person the organization keeps a record of. Not a user account: a member

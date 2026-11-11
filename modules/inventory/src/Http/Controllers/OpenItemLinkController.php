@@ -1,10 +1,10 @@
 <?php
 
-namespace Tessera\Inventory\Http\Controllers;
+namespace TidyOrg\Inventory\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 class OpenItemLinkController
 {

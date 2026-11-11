@@ -5,7 +5,7 @@ use Composer\InstalledVersions;
 
 arch('core never depends on a module')
     ->expect('App')
-    ->not->toUse('Tessera');
+    ->not->toUse('TidyOrg');
 
 /*
  * Every module in modules/ is read from its composer.json, so a new module is

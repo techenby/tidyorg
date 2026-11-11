@@ -53,7 +53,7 @@ new class extends Component {
 }; ?>
 
 <div>
-    @if ($this->modules !== [] && ! config('tessera.single_organization'))
+    @if ($this->modules !== [] && ! config('tidyorg.single_organization'))
         <div class="space-y-6" data-test="team-modules">
             <div>
                 <flux:heading>{{ __('Modules') }}</flux:heading>

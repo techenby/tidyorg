@@ -2,7 +2,7 @@
 
 use App\Enums\TeamRole;
 use Livewire\Livewire;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 /*
  * One organization must never see or change another's inventory. "Ours" is the

@@ -9,13 +9,13 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use App\Modules\Person;
-use Tessera\Inventory\Actions\CheckInItem;
-use Tessera\Inventory\Actions\CheckOutItem;
-use Tessera\Inventory\Actions\DuplicateItem;
-use Tessera\Inventory\Actions\MoveItemToTeam;
-use Tessera\Inventory\Enums\ItemType;
-use Tessera\Inventory\Livewire\InventoryPage;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Actions\CheckInItem;
+use TidyOrg\Inventory\Actions\CheckOutItem;
+use TidyOrg\Inventory\Actions\DuplicateItem;
+use TidyOrg\Inventory\Actions\MoveItemToTeam;
+use TidyOrg\Inventory\Enums\ItemType;
+use TidyOrg\Inventory\Livewire\InventoryPage;
+use TidyOrg\Inventory\Models\Item;
 
 new #[Title('Inventory')] class extends InventoryPage {
     #[Locked]

@@ -59,7 +59,7 @@ expect()->extend('toBeOne', function () {
  */
 function installModules(array $providers = [ExampleModule::class], string|array $active = '*'): void
 {
-    config(['tessera.modules' => $active]);
+    config(['tidyorg.modules' => $active]);
 
     foreach ($providers as $provider) {
         app()->register($provider);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Inventory\Livewire;
+namespace TidyOrg\Inventory\Livewire;
 
 use App\Models\Team;
 use App\Modules\Contracts\PeopleDirectory;
@@ -14,9 +14,9 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use Tessera\Inventory\Actions\GenerateItemQrCode;
-use Tessera\Inventory\Livewire\Forms\ItemForm;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Actions\GenerateItemQrCode;
+use TidyOrg\Inventory\Livewire\Forms\ItemForm;
+use TidyOrg\Inventory\Models\Item;
 
 /**
  * What the inventory pages share: the current organization, what the user may

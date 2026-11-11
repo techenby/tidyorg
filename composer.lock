@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cdbf896dd24582b3efc3c4c17bf1fab2",
+    "content-hash": "6129af35a2bfc05222e3aa8e9117ba3b",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7424,12 +7424,12 @@
             "time": "2026-10-26T21:55:04+00:00"
         },
         {
-            "name": "tessera/inventory",
+            "name": "tidyorg/inventory",
             "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "modules/inventory",
-                "reference": "95b43dd5b40868c9d00c09c2e66dcafe0273e634"
+                "reference": "3d25b5dcfec41e7dc9c885c76950a94a38935b52"
             },
             "require": {
                 "bacon/bacon-qr-code": "^3.0",
@@ -7439,57 +7439,57 @@
                 "ext-exif": "Rotates thumbnails of phone photos the right way up.",
                 "ext-gd": "Creates small thumbnails of item photos."
             },
-            "type": "tessera-module",
+            "type": "tidyorg-module",
             "extra": {
                 "laravel": {
                     "providers": [
-                        "Tessera\\Inventory\\InventoryModule"
+                        "TidyOrg\\Inventory\\InventoryModule"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Tessera\\Inventory\\": "src/",
-                    "Tessera\\Inventory\\Database\\Factories\\": "database/factories/"
+                    "TidyOrg\\Inventory\\": "src/",
+                    "TidyOrg\\Inventory\\Database\\Factories\\": "database/factories/"
                 }
             },
             "license": [
                 "AGPL-3.0-or-later"
             ],
-            "description": "Tessera module for tracking what an organization owns and where it is kept.",
+            "description": "Tidy Org module for tracking what an organization owns and where it is kept.",
             "transport-options": {
                 "relative": true
             }
         },
         {
-            "name": "tessera/members",
+            "name": "tidyorg/members",
             "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "modules/members",
-                "reference": "c5763c77f92dfcb5671f35b8f7d88b0b6a222ef3"
+                "reference": "bb49fdbbba9d11f87e22b3b38a02175f2fe231e4"
             },
             "require": {
                 "php": "^8.3"
             },
-            "type": "tessera-module",
+            "type": "tidyorg-module",
             "extra": {
                 "laravel": {
                     "providers": [
-                        "Tessera\\Members\\MembersModule"
+                        "TidyOrg\\Members\\MembersModule"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Tessera\\Members\\": "src/",
-                    "Tessera\\Members\\Database\\Factories\\": "database/factories/"
+                    "TidyOrg\\Members\\": "src/",
+                    "TidyOrg\\Members\\Database\\Factories\\": "database/factories/"
                 }
             },
             "license": [
                 "AGPL-3.0-or-later"
             ],
-            "description": "Tessera module for keeping a directory of the people connected to an organization.",
+            "description": "Tidy Org module for keeping a directory of the people connected to an organization.",
             "transport-options": {
                 "relative": true
             }
@@ -11782,8 +11782,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "tessera/inventory": 20,
-        "tessera/members": 20
+        "tidyorg/inventory": 20,
+        "tidyorg/members": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

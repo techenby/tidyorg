@@ -26,12 +26,12 @@ const ADMINISTRATOR = [
 ];
 
 test('it asks for the first administrator and creates their organization', function () {
-    $this->artisan('tessera:install', installOptions())
+    $this->artisan('tidyorg:install', installOptions())
         ->expectsQuestion('Your name', 'Jordan Lee')
         ->expectsQuestion('Your email address', 'jordan@example.org')
         ->expectsQuestion('Choose a password', 'a-long-passphrase')
         ->expectsQuestion('The name of your organization', 'Riverside Food Bank')
-        ->expectsOutputToContain('Tessera is ready')
+        ->expectsOutputToContain('Tidy Org is ready')
         ->assertSuccessful();
 
     $user = User::where('email', 'jordan@example.org')->firstOrFail();
@@ -45,7 +45,7 @@ test('it asks for the first administrator and creates their organization', funct
 });
 
 test('it takes the administrator from options when run without interaction', function () {
-    $this->artisan('tessera:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
+    $this->artisan('tidyorg:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
         ->assertSuccessful();
 
     expect(User::where('email', 'jordan@example.org')->exists())->toBeTrue()
@@ -56,7 +56,7 @@ test('it fails without interaction when an answer is missing', function () {
     $options = ADMINISTRATOR;
     unset($options['--password']);
 
-    $this->artisan('tessera:install', installOptions([...$options, '--no-interaction' => true]))
+    $this->artisan('tidyorg:install', installOptions([...$options, '--no-interaction' => true]))
         ->expectsOutputToContain('Pass --name, --email, --password, and --organization')
         ->assertFailed();
 
@@ -65,7 +65,7 @@ test('it fails without interaction when an answer is missing', function () {
 });
 
 test('it rejects answers that are not valid', function (array $override) {
-    $this->artisan('tessera:install', installOptions([...ADMINISTRATOR, ...$override, '--no-interaction' => true]))
+    $this->artisan('tidyorg:install', installOptions([...ADMINISTRATOR, ...$override, '--no-interaction' => true]))
         ->assertFailed();
 
     expect(User::count())->toBe(0)
@@ -79,7 +79,7 @@ test('it rejects answers that are not valid', function (array $override) {
 test('it does not create a second administrator when an account exists', function () {
     User::factory()->create();
 
-    $this->artisan('tessera:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
+    $this->artisan('tidyorg:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
         ->expectsOutputToContain('already has an account')
         ->assertSuccessful();
 
@@ -90,7 +90,7 @@ test('it does not create a second administrator when an account exists', functio
 test('it switches the active modules on for the first organization when several are hosted', function () {
     installModules();
 
-    $this->artisan('tessera:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
+    $this->artisan('tidyorg:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
         ->assertSuccessful();
 
     $team = Team::where('name', 'Riverside Food Bank')->firstOrFail();
@@ -101,9 +101,9 @@ test('it switches the active modules on for the first organization when several 
 
 test('it leaves the module switches alone for a single organization', function () {
     installModules();
-    config(['tessera.single_organization' => true]);
+    config(['tidyorg.single_organization' => true]);
 
-    $this->artisan('tessera:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
+    $this->artisan('tidyorg:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
         ->assertSuccessful();
 
     expect(DB::table('team_modules')->count())->toBe(0)
@@ -113,7 +113,7 @@ test('it leaves the module switches alone for a single organization', function (
 test('it warns when outgoing mail is not set up', function () {
     config(['mail.default' => 'log']);
 
-    $this->artisan('tessera:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
+    $this->artisan('tidyorg:install', installOptions([...ADMINISTRATOR, '--no-interaction' => true]))
         ->expectsOutputToContain('Outgoing mail is not set up')
         ->assertSuccessful();
 });

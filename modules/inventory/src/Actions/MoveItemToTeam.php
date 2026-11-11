@@ -1,10 +1,10 @@
 <?php
 
-namespace Tessera\Inventory\Actions;
+namespace TidyOrg\Inventory\Actions;
 
 use App\Models\Team;
 use Illuminate\Support\Facades\Storage;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 class MoveItemToTeam
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Inventory;
+namespace TidyOrg\Inventory;
 
 use App\Enums\TeamRole;
 use App\Models\Team;
@@ -11,9 +11,9 @@ use App\Modules\Widget;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Tessera\Inventory\Http\Controllers\OpenItemLinkController;
-use Tessera\Inventory\Models\Item;
-use Tessera\Inventory\Policies\ItemPolicy;
+use TidyOrg\Inventory\Http\Controllers\OpenItemLinkController;
+use TidyOrg\Inventory\Models\Item;
+use TidyOrg\Inventory\Policies\ItemPolicy;
 
 class InventoryModule extends Module
 {

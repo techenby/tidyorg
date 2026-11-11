@@ -21,12 +21,12 @@
                 <flux:tooltip :content="__('Search')" position="bottom">
                     <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
                 </flux:tooltip>
-                @if (config('tessera.source.url'))
+                @if (config('tidyorg.source.url'))
                     <flux:tooltip :content="__('Source code')" position="bottom">
                         <flux:navbar.item
                             class="h-10 max-lg:hidden [&>div>svg]:size-5"
                             icon="folder-git-2"
-                            :href="config('tessera.source.url')"
+                            :href="config('tidyorg.source.url')"
                             target="_blank"
                             :label="__('Source code')"
                         />
@@ -60,9 +60,9 @@
 
             <flux:spacer />
 
-            @if (config('tessera.source.url'))
+            @if (config('tidyorg.source.url'))
                 <flux:sidebar.nav>
-                    <flux:sidebar.item icon="folder-git-2" :href="config('tessera.source.url')" target="_blank">
+                    <flux:sidebar.item icon="folder-git-2" :href="config('tidyorg.source.url')" target="_blank">
                         {{ __('Source code') }}
                     </flux:sidebar.item>
                 </flux:sidebar.nav>

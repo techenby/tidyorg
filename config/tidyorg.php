@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'modules' => env('TESSERA_MODULES', '*'),
+    'modules' => env('TIDYORG_MODULES', '*'),
 
     /*
     |--------------------------------------------------------------------------
@@ -27,21 +27,21 @@ return [
     |
     */
 
-    'single_organization' => (bool) env('TESSERA_SINGLE_ORGANIZATION', false),
+    'single_organization' => (bool) env('TIDYORG_SINGLE_ORGANIZATION', false),
 
     /*
     |--------------------------------------------------------------------------
     | Trusted Proxies
     |--------------------------------------------------------------------------
     |
-    | When Tessera runs behind a reverse proxy or load balancer that handles
+    | When Tidy Org runs behind a reverse proxy or load balancer that handles
     | HTTPS, list the proxy's addresses here, separated by commas, or use
     | "*" to trust whichever proxy the request came through. Without it,
     | links are generated with http:// and visitors' addresses are wrong.
     |
     */
 
-    'trusted_proxies' => env('TESSERA_TRUSTED_PROXIES'),
+    'trusted_proxies' => env('TIDYORG_TRUSTED_PROXIES'),
 
     /*
     |--------------------------------------------------------------------------
@@ -54,23 +54,23 @@ return [
     |
     */
 
-    'closed_organization_days' => (int) env('TESSERA_CLOSED_ORGANIZATION_DAYS', 30),
+    'closed_organization_days' => (int) env('TIDYORG_CLOSED_ORGANIZATION_DAYS', 30),
 
     /*
     |--------------------------------------------------------------------------
     | Source Code
     |--------------------------------------------------------------------------
     |
-    | Tessera is licensed under the AGPL, which gives everyone who uses an
+    | Tidy Org is licensed under the AGPL, which gives everyone who uses an
     | install over a network the right to its source code. The interface
-    | links to this address. If you change Tessera, publish your version
+    | links to this address. If you change Tidy Org, publish your version
     | and point this at it. The revision is the commit that is running.
     |
     */
 
     'source' => [
-        'url' => env('TESSERA_SOURCE_URL'),
-        'revision' => env('TESSERA_SOURCE_REVISION'),
+        'url' => env('TIDYORG_SOURCE_URL'),
+        'revision' => env('TIDYORG_SOURCE_REVISION'),
     ],
 
 ];

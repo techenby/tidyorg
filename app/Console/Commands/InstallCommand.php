@@ -32,26 +32,26 @@ use function Laravel\Prompts\password;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
-#[Signature('tessera:install
+#[Signature('tidyorg:install
     {--skip-env : Use the environment as it is instead of writing a .env file}
     {--name= : The first administrator\'s name}
     {--email= : The first administrator\'s email address}
     {--password= : The first administrator\'s password}
     {--organization= : The name of the organization}')]
-#[Description('Set up a new Tessera install: environment, database, and the first administrator')]
+#[Description('Set up a new Tidy Org install: environment, database, and the first administrator')]
 class InstallCommand extends Command
 {
     use PasswordValidationRules, ProfileValidationRules;
 
     /**
-     * PHP extensions Tessera cannot run without.
+     * PHP extensions Tidy Org cannot run without.
      *
      * @var list<string>
      */
     private const array REQUIRED_EXTENSIONS = ['ctype', 'curl', 'dom', 'fileinfo', 'filter', 'mbstring', 'openssl', 'pdo', 'session', 'tokenizer', 'xml'];
 
     /**
-     * PHP extensions that improve Tessera, with what each is for.
+     * PHP extensions that improve Tidy Org, with what each is for.
      *
      * @var array<string, string>
      */
@@ -101,11 +101,11 @@ class InstallCommand extends Command
             return $createTeam->handle($user, $answers['organization']);
         });
 
-        if (! config('tessera.single_organization')) {
+        if (! config('tidyorg.single_organization')) {
             $this->enableModules($modules, $enableModule, $team);
         }
 
-        $this->components->info('Tessera is ready. Sign in at '.config('app.url')." as {$answers['email']}.");
+        $this->components->info('Tidy Org is ready. Sign in at '.config('app.url')." as {$answers['email']}.");
 
         if (in_array(config('mail.default'), ['log', 'array'], true)) {
             $this->components->warn('Outgoing mail is not set up, so invitations and password resets will not be delivered. See docs/self-hosting/configuration.md.');
@@ -130,7 +130,7 @@ class InstallCommand extends Command
 
         foreach (self::RECOMMENDED_EXTENSIONS as $extension => $purpose) {
             if (! extension_loaded($extension)) {
-                $this->components->warn("The PHP extension [{$extension}] is not installed. Tessera works without it, but it is used for {$purpose}.");
+                $this->components->warn("The PHP extension [{$extension}] is not installed. Tidy Org works without it, but it is used for {$purpose}.");
             }
         }
 
@@ -171,16 +171,16 @@ class InstallCommand extends Command
             'APP_ENV' => 'production',
             'APP_DEBUG' => false,
             'APP_URL' => rtrim(text(
-                label: 'What address will people use to open Tessera?',
+                label: 'What address will people use to open Tidy Org?',
                 default: $environment->get('APP_URL') ?? 'http://localhost',
                 validate: ['address' => ['required', 'url']],
             ), '/'),
             ...$this->databaseAnswers(),
-            'TESSERA_SINGLE_ORGANIZATION' => confirm(
+            'TIDYORG_SINGLE_ORGANIZATION' => confirm(
                 label: 'Will this install be used by one organization?',
                 hint: 'With one organization, people join by invitation only and every module is switched on for it.',
             ),
-            'TESSERA_MODULES' => $this->moduleAnswer($modules),
+            'TIDYORG_MODULES' => $this->moduleAnswer($modules),
         ];
 
         if (blank($environment->get('APP_KEY'))) {
@@ -195,14 +195,14 @@ class InstallCommand extends Command
     }
 
     /**
-     * Ask which database to use, repeating until Tessera can connect to it.
+     * Ask which database to use, repeating until Tidy Org can connect to it.
      *
      * @return array<string, string|int|null>
      */
     private function databaseAnswers(): array
     {
         $driver = select(
-            label: 'Which database should Tessera use?',
+            label: 'Which database should Tidy Org use?',
             options: [
                 'sqlite' => 'SQLite (a file on this server, nothing else to install)',
                 'pgsql' => 'PostgreSQL',
@@ -227,7 +227,7 @@ class InstallCommand extends Command
                 'DB_CONNECTION' => $driver,
                 'DB_HOST' => text('Database host', default: '127.0.0.1', required: true),
                 'DB_PORT' => text('Database port', default: $driver === 'pgsql' ? '5432' : '3306', required: true),
-                'DB_DATABASE' => text('Database name', default: 'tessera', required: true),
+                'DB_DATABASE' => text('Database name', default: 'tidyorg', required: true),
                 'DB_USERNAME' => text('Database user', required: true),
                 'DB_PASSWORD' => password('Database password'),
             ];
@@ -238,7 +238,7 @@ class InstallCommand extends Command
                 return $values;
             }
 
-            $this->components->error("Tessera could not connect to that database: {$error}");
+            $this->components->error("Tidy Org could not connect to that database: {$error}");
         }
     }
 
@@ -249,7 +249,7 @@ class InstallCommand extends Command
      */
     private function databaseError(array $values): ?string
     {
-        config(['database.connections.tessera_install' => [
+        config(['database.connections.tidyorg_install' => [
             ...config("database.connections.{$values['DB_CONNECTION']}"),
             'host' => $values['DB_HOST'],
             'port' => $values['DB_PORT'],
@@ -259,13 +259,13 @@ class InstallCommand extends Command
         ]]);
 
         try {
-            DB::connection('tessera_install')->getPdo();
+            DB::connection('tidyorg_install')->getPdo();
 
             return null;
         } catch (Throwable $exception) {
             return $exception->getMessage();
         } finally {
-            DB::purge('tessera_install');
+            DB::purge('tidyorg_install');
         }
     }
 
@@ -284,7 +284,7 @@ class InstallCommand extends Command
             label: 'Which modules do you want to use?',
             options: $installed->map(fn (Module $module): string => $module->name())->all(),
             default: $installed->keys()->all(),
-            hint: 'You can change this later with TESSERA_MODULES in .env.',
+            hint: 'You can change this later with TIDYORG_MODULES in .env.',
         );
 
         return count($chosen) === $installed->count() ? '*' : implode(',', $chosen);
@@ -297,7 +297,7 @@ class InstallCommand extends Command
      */
     private function continueInFreshProcess(array $values): int
     {
-        $command = [php_binary(), artisan_binary(), 'tessera:install', '--skip-env'];
+        $command = [php_binary(), artisan_binary(), 'tidyorg:install', '--skip-env'];
 
         foreach (['name', 'email', 'password', 'organization'] as $option) {
             if ($this->option($option) !== null) {

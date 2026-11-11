@@ -54,8 +54,8 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          tar --create --gzip --file "/tmp/tessera-$TAG.tar.gz" \
-            --transform "s,^\.,tessera-$TAG," \
+          tar --create --gzip --file "/tmp/tidyorg-$TAG.tar.gz" \
+            --transform "s,^\.,tidyorg-$TAG," \
             --exclude ./.git \
             --exclude ./.github \
             --exclude ./.ai \
@@ -70,7 +70,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" "/tmp/tessera-$TAG.tar.gz" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes
+        run: gh release create "$TAG" "/tmp/tidyorg-$TAG.tar.gz" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes
 
   # The same image runs the web server, the queue worker, and the scheduler.
   image:

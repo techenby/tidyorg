@@ -1,11 +1,11 @@
 <?php
 
 use Livewire\Livewire;
-use Tessera\Inventory\Actions\DuplicateItem;
-use Tessera\Inventory\Actions\MoveItemToTeam;
-use Tessera\Inventory\Models\Item;
 use Tests\Fixtures\Modules\People\FakePeopleDirectory;
 use Tests\Fixtures\Modules\People\PeopleModule;
+use TidyOrg\Inventory\Actions\DuplicateItem;
+use TidyOrg\Inventory\Actions\MoveItemToTeam;
+use TidyOrg\Inventory\Models\Item;
 
 /*
  * Checking items out depends on a people directory, which Inventory gets from

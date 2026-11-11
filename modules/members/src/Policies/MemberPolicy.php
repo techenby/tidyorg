@@ -1,10 +1,10 @@
 <?php
 
-namespace Tessera\Members\Policies;
+namespace TidyOrg\Members\Policies;
 
 use App\Models\Team;
 use App\Models\User;
-use Tessera\Members\Models\Member;
+use TidyOrg\Members\Models\Member;
 
 /**
  * Every check goes through the organization's module permissions, which also

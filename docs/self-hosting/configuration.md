@@ -1,6 +1,6 @@
 # Configuration
 
-Settings live in the `.env` file in Tessera's directory. With Docker they live in the `.env` file next to `compose.yaml` instead.
+Settings live in the `.env` file in Tidy Org's directory. With Docker they live in the `.env` file next to `compose.yaml` instead.
 
 After changing a setting on a server install, rebuild the cached configuration:
 
@@ -12,19 +12,19 @@ With Docker, restart instead: `docker compose up -d`.
 
 ## Address and HTTPS
 
-`APP_URL` is the address people use to open Tessera. Links in emails and QR codes are built from it, so it must be the real public address, including `https://`.
+`APP_URL` is the address people use to open Tidy Org. Links in emails and QR codes are built from it, so it must be the real public address, including `https://`.
 
-When a reverse proxy or load balancer handles HTTPS in front of Tessera, tell Tessera to trust it. Otherwise it builds `http://` links and pages may fail to load their styles.
+When a reverse proxy or load balancer handles HTTPS in front of Tidy Org, tell Tidy Org to trust it. Otherwise it builds `http://` links and pages may fail to load their styles.
 
 ```
-TESSERA_TRUSTED_PROXIES=*
+TIDYORG_TRUSTED_PROXIES=*
 ```
 
-`*` trusts whichever proxy passed the request on. Use it only when Tessera cannot be reached except through the proxy. Otherwise list the proxy's addresses, separated by commas.
+`*` trusts whichever proxy passed the request on. Use it only when Tidy Org cannot be reached except through the proxy. Otherwise list the proxy's addresses, separated by commas.
 
 ## Outgoing mail
 
-Tessera emails invitations, address confirmations, and password resets. Until mail is set up, those messages are only written to the log and nobody receives them.
+Tidy Org emails invitations, address confirmations, and password resets. Until mail is set up, those messages are only written to the log and nobody receives them.
 
 Any SMTP service works, including the one that comes with most email hosting:
 
@@ -32,9 +32,9 @@ Any SMTP service works, including the one that comes with most email hosting:
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.example.org
 MAIL_PORT=587
-MAIL_USERNAME=tessera@example.org
+MAIL_USERNAME=tidyorg@example.org
 MAIL_PASSWORD=your-password
-MAIL_FROM_ADDRESS=tessera@example.org
+MAIL_FROM_ADDRESS=tidyorg@example.org
 MAIL_FROM_NAME="Riverside Food Bank"
 ```
 
@@ -43,7 +43,7 @@ The account the installer creates is already confirmed, so you can sign in befor
 ## One organization or several
 
 ```
-TESSERA_SINGLE_ORGANIZATION=true
+TIDYORG_SINGLE_ORGANIZATION=true
 ```
 
 With this on, which is what the installer sets unless you say otherwise:
@@ -77,7 +77,7 @@ AWS_ENDPOINT=https://...
 When an owner deletes an organization, it is closed straight away and its data is kept for 30 days before being permanently deleted. Change the delay with:
 
 ```
-TESSERA_CLOSED_ORGANIZATION_DAYS=30
+TIDYORG_CLOSED_ORGANIZATION_DAYS=30
 ```
 
 To delete one immediately, or to take a copy of everything an organization has stored:
@@ -91,12 +91,12 @@ The export is a zip file in `storage/app/private/teams/<number>/exports`. It is 
 
 ## Source code link
 
-Tessera is licensed under the AGPL. If you change its code and let other people use your version, the licence requires you to offer them your changes. Publish your version and set its address, and Tessera links to it from the sign-in page and the sidebar:
+Tidy Org is licensed under the AGPL. If you change its code and let other people use your version, the licence requires you to offer them your changes. Publish your version and set its address, and Tidy Org links to it from the sign-in page and the sidebar:
 
 ```
-TESSERA_SOURCE_URL=https://example.org/our-tessera
+TIDYORG_SOURCE_URL=https://example.org/our-tidyorg
 ```
 
 ## Modules
 
-`TESSERA_MODULES` chooses which modules the install offers. See [modules.md](modules.md).
+`TIDYORG_MODULES` chooses which modules the install offers. See [modules.md](modules.md).

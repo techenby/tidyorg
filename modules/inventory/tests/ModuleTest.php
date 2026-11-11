@@ -5,10 +5,10 @@ use App\Actions\Teams\PurgeTeam;
 use App\Enums\TeamRole;
 use App\Modules\Facades\Modules;
 use Illuminate\Support\Facades\Storage;
-use Tessera\Inventory\Actions\CreateThumbnail;
-use Tessera\Inventory\Actions\DuplicateItem;
-use Tessera\Inventory\Actions\MoveItemToTeam;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Actions\CreateThumbnail;
+use TidyOrg\Inventory\Actions\DuplicateItem;
+use TidyOrg\Inventory\Actions\MoveItemToTeam;
+use TidyOrg\Inventory\Models\Item;
 
 test('the module is discovered and describes itself', function () {
     $module = Modules::find('inventory');

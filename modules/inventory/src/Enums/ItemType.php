@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Inventory\Enums;
+namespace TidyOrg\Inventory\Enums;
 
 enum ItemType: string
 {

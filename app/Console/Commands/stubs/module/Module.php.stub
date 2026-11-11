@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\{{ studly }};
+namespace TidyOrg\{{ studly }};
 
 use App\Enums\TeamRole;
 use App\Models\Team;

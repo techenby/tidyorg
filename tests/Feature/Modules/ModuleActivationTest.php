@@ -11,7 +11,7 @@ test('an installed module that is not active registers no routes, navigation, or
     installModules(active: '');
 
     $user = User::factory()->create();
-    config(['tessera.single_organization' => true]);
+    config(['tidyorg.single_organization' => true]);
 
     expect(Modules::isInstalled('example'))->toBeTrue()
         ->and(Modules::isActive('example'))->toBeFalse()
@@ -97,7 +97,7 @@ test('guests are redirected to the login page from module pages', function () {
 
 test('single organization mode enables every active module without per-organization records', function () {
     installModules();
-    config(['tessera.single_organization' => true]);
+    config(['tidyorg.single_organization' => true]);
 
     $user = User::factory()->create();
 

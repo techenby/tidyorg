@@ -12,12 +12,12 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
-use Tessera\Inventory\Actions\DuplicateItem;
-use Tessera\Inventory\Actions\MoveItemToTeam;
-use Tessera\Inventory\Actions\StoreItemPhoto;
-use Tessera\Inventory\Enums\ItemType;
-use Tessera\Inventory\Livewire\InventoryPage;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Actions\DuplicateItem;
+use TidyOrg\Inventory\Actions\MoveItemToTeam;
+use TidyOrg\Inventory\Actions\StoreItemPhoto;
+use TidyOrg\Inventory\Enums\ItemType;
+use TidyOrg\Inventory\Livewire\InventoryPage;
+use TidyOrg\Inventory\Models\Item;
 
 new #[Title('Inventory')] class extends InventoryPage {
     #[Url]

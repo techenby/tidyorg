@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Inventory\Models;
+namespace TidyOrg\Inventory\Models;
 
 use App\Models\Team;
 use App\Modules\StoredFile;
@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Tessera\Inventory\Database\Factories\ItemFactory;
-use Tessera\Inventory\Enums\ItemType;
+use TidyOrg\Inventory\Database\Factories\ItemFactory;
+use TidyOrg\Inventory\Enums\ItemType;
 
 /**
  * @property int $id

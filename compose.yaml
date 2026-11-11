@@ -1,47 +1,47 @@
-# Tessera for self-hosting: the web server, a queue worker, the scheduler, and PostgreSQL.
+# Tidy Org for self-hosting: the web server, a queue worker, the scheduler, and PostgreSQL.
 #
 # Put APP_KEY, APP_URL, and DB_PASSWORD in a .env file next to this one, then
 # follow docs/self-hosting/docker.md.
 
-x-tessera: &tessera
-  image: ${TESSERA_IMAGE:-tessera:latest}
+x-tidyorg: &tidyorg
+  image: ${TIDYORG_IMAGE:-tidyorg:latest}
   build: .
   restart: unless-stopped
   environment:
-    APP_NAME: ${APP_NAME:-Tessera}
+    APP_NAME: ${APP_NAME:-Tidy Org}
     APP_KEY: ${APP_KEY:?Set APP_KEY in .env}
     APP_URL: ${APP_URL:-http://localhost:8080}
     DB_CONNECTION: pgsql
     DB_HOST: db
     DB_PORT: 5432
-    DB_DATABASE: tessera
-    DB_USERNAME: tessera
+    DB_DATABASE: tidyorg
+    DB_USERNAME: tidyorg
     DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
     SESSION_DRIVER: database
     CACHE_STORE: database
     QUEUE_CONNECTION: database
     FILESYSTEM_DISK: local
-    TESSERA_MODULES: ${TESSERA_MODULES:-*}
-    TESSERA_SINGLE_ORGANIZATION: ${TESSERA_SINGLE_ORGANIZATION:-true}
-    TESSERA_TRUSTED_PROXIES: ${TESSERA_TRUSTED_PROXIES:-}
-    TESSERA_CLOSED_ORGANIZATION_DAYS: ${TESSERA_CLOSED_ORGANIZATION_DAYS:-30}
-    TESSERA_SOURCE_URL: ${TESSERA_SOURCE_URL:-}
+    TIDYORG_MODULES: ${TIDYORG_MODULES:-*}
+    TIDYORG_SINGLE_ORGANIZATION: ${TIDYORG_SINGLE_ORGANIZATION:-true}
+    TIDYORG_TRUSTED_PROXIES: ${TIDYORG_TRUSTED_PROXIES:-}
+    TIDYORG_CLOSED_ORGANIZATION_DAYS: ${TIDYORG_CLOSED_ORGANIZATION_DAYS:-30}
+    TIDYORG_SOURCE_URL: ${TIDYORG_SOURCE_URL:-}
     MAIL_MAILER: ${MAIL_MAILER:-log}
     MAIL_HOST: ${MAIL_HOST:-}
     MAIL_PORT: ${MAIL_PORT:-587}
     MAIL_USERNAME: ${MAIL_USERNAME:-}
     MAIL_PASSWORD: ${MAIL_PASSWORD:-}
-    MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-tessera@example.org}
-    MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Tessera}
+    MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-tidyorg@example.org}
+    MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Tidy Org}
   volumes:
     - uploads:/app/storage/app
 
 services:
   app:
-    <<: *tessera
+    <<: *tidyorg
     command: web
     ports:
-      - "${TESSERA_PORT:-8080}:8080"
+      - "${TIDYORG_PORT:-8080}:8080"
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "--output", "/dev/null", "http://localhost:8080/up"]
       interval: 10s
@@ -53,14 +53,14 @@ services:
         condition: service_healthy
 
   queue:
-    <<: *tessera
+    <<: *tidyorg
     command: queue
     depends_on:
       app:
         condition: service_healthy
 
   scheduler:
-    <<: *tessera
+    <<: *tidyorg
     command: scheduler
     depends_on:
       app:
@@ -70,13 +70,13 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: tessera
-      POSTGRES_USER: tessera
+      POSTGRES_DB: tidyorg
+      POSTGRES_USER: tidyorg
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
     volumes:
       - database:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready --username tessera --dbname tessera"]
+      test: ["CMD-SHELL", "pg_isready --username tidyorg --dbname tidyorg"]
       interval: 5s
       timeout: 5s
       retries: 12

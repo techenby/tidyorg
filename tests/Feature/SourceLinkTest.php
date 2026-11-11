@@ -3,11 +3,11 @@
 use App\Models\User;
 
 test('the source code is linked for guests and members when an address is set', function () {
-    config(['tessera.source' => ['url' => 'https://example.org/tessera', 'revision' => '0123456789abcdef0123']]);
+    config(['tidyorg.source' => ['url' => 'https://example.org/tidyorg', 'revision' => '0123456789abcdef0123']]);
 
     $this->get(route('login'))
         ->assertOk()
-        ->assertSee('href="https://example.org/tessera"', false)
+        ->assertSee('href="https://example.org/tidyorg"', false)
         ->assertSee('revision 0123456789ab');
 
     $user = User::factory()->create();
@@ -15,11 +15,11 @@ test('the source code is linked for guests and members when an address is set', 
     $this->actingAs($user)
         ->get(route('dashboard', ['current_team' => $user->currentTeam->slug]))
         ->assertOk()
-        ->assertSee('href="https://example.org/tessera"', false);
+        ->assertSee('href="https://example.org/tidyorg"', false);
 });
 
 test('no source link is shown when no address is set', function () {
-    config(['tessera.source' => ['url' => null, 'revision' => null]]);
+    config(['tidyorg.source' => ['url' => null, 'revision' => null]]);
 
     $user = User::factory()->create();
 

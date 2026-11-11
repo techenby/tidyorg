@@ -1,6 +1,6 @@
 <?php
 
-namespace Tessera\Members;
+namespace TidyOrg\Members;
 
 use App\Enums\TeamRole;
 use App\Models\Team;
@@ -9,8 +9,8 @@ use App\Modules\Module;
 use App\Modules\NavigationItem;
 use App\Modules\OrganizationExport;
 use Illuminate\Support\Facades\Gate;
-use Tessera\Members\Models\Member;
-use Tessera\Members\Policies\MemberPolicy;
+use TidyOrg\Members\Models\Member;
+use TidyOrg\Members\Policies\MemberPolicy;
 
 class MembersModule extends Module
 {

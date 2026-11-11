@@ -1,11 +1,11 @@
 <?php
 
-namespace Tessera\Inventory\Database\Factories;
+namespace TidyOrg\Inventory\Database\Factories;
 
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Tessera\Inventory\Enums\ItemType;
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Enums\ItemType;
+use TidyOrg\Inventory\Models\Item;
 
 /**
  * @extends Factory<Item>

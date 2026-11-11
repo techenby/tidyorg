@@ -1,7 +1,7 @@
 {
-    "name": "tessera/inventory",
-    "description": "Tessera module for tracking what an organization owns and where it is kept.",
-    "type": "tessera-module",
+    "name": "tidyorg/inventory",
+    "description": "Tidy Org module for tracking what an organization owns and where it is kept.",
+    "type": "tidyorg-module",
     "license": "AGPL-3.0-or-later",
     "require": {
         "php": "^8.3",
@@ -13,14 +13,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Tessera\\Inventory\\": "src/",
-            "Tessera\\Inventory\\Database\\Factories\\": "database/factories/"
+            "TidyOrg\\Inventory\\": "src/",
+            "TidyOrg\\Inventory\\Database\\Factories\\": "database/factories/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Tessera\\Inventory\\InventoryModule"
+                "TidyOrg\\Inventory\\InventoryModule"
             ]
         }
     }

@@ -6,7 +6,7 @@ use App\Modules\Contracts\PeopleDirectory;
 use App\Modules\Facades\Modules;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use Tessera\Members\Models\Member;
+use TidyOrg\Members\Models\Member;
 
 beforeEach(function () {
     $this->owner = ownerWithModules('members');

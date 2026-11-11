@@ -1,6 +1,6 @@
 <?php
 
-use Tessera\Inventory\Models\Item;
+use TidyOrg\Inventory\Models\Item;
 
 beforeEach(function () {
     $this->owner = ownerWithModules('inventory');
