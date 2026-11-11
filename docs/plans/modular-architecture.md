@@ -168,7 +168,7 @@ Still to do:
 - [ ] Restoring a closed organization inside the retention period, database backups (Laravel Cloud's own), an operator admin beyond the command line, and warning emails before a trial ends.
 - [x] A welcome page of Tidy Org's own, which a hosting package can add sections to (`tidyorg.welcome_sections`). Cloud adds a roadmap, pricing, and a form for people who want to be kept posted.
 - [x] `TIDYORG_REGISTRATION=invitation` closes public registration on an install that hosts several organizations. Cloud uses it until live payments are ready.
-- [ ] A logo of Tidy Org's own in place of the starter kit's.
+- [x] A logo of Tidy Org's own in place of the starter kit's: a paperclip, for now.
 
 Done when: a new customer can sign up, pay, create an organization, enable modules, and use them on the Cloud deployment, and a cancelled organization's data can be exported and removed.
 

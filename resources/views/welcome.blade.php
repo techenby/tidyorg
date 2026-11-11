@@ -11,7 +11,7 @@
         <div class="mx-auto flex min-h-svh w-full max-w-5xl flex-col px-6">
             <header class="flex items-center justify-between gap-4 py-6">
                 <a href="{{ route('home') }}" class="flex items-center gap-2 font-semibold">
-                    <x-app-logo-icon class="size-7 fill-current" />
+                    <x-app-logo-icon class="size-7" />
                     <span>{{ config('app.name') }}</span>
                 </a>
 
