@@ -89,10 +89,11 @@ Core exposes a small, stable set of places where a module plugs in. A module's s
 | Views | A Livewire namespace (`inventory::`) pointing at the module's `resources/views` |
 | Migrations, translations, commands, schedule | Loaded from the module directory |
 | Lifecycle hooks | `enabling`, `disabled`, and `purging` callbacks per organization |
+| Stored files | `App\Modules\StoredFile::url()` for a link to an upload on whichever disk is configured, and `<x-file-input>` for the upload control |
 
 When a module needs something that no extension point offers, add an extension point to core. Do not special-case the module in core.
 
-`tests/Fixtures/Modules/Example` is a complete, minimal module and the reference for how one is put together. Tests install modules with the `installModules()` helper in `tests/Pest.php`.
+`tests/Fixtures/Modules/Example` is a complete, minimal module and the reference for how one is put together. `modules/inventory` is the reference for a real one. Tests install modules with the `installModules()` helper in `tests/Pest.php`.
 
 ### Permissions
 

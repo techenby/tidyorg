@@ -19,6 +19,8 @@ test('organization settings list the active modules', function () {
 });
 
 test('organization settings have no modules section when none are active', function () {
+    config(['tessera.modules' => []]);
+
     $owner = User::factory()->create();
 
     $this->actingAs($owner)

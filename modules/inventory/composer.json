@@ -1,0 +1,27 @@
+{
+    "name": "tessera/inventory",
+    "description": "Tessera module for tracking what an organization owns and where it is kept.",
+    "type": "tessera-module",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "php": "^8.3",
+        "bacon/bacon-qr-code": "^3.0"
+    },
+    "suggest": {
+        "ext-gd": "Creates small thumbnails of item photos.",
+        "ext-exif": "Rotates thumbnails of phone photos the right way up."
+    },
+    "autoload": {
+        "psr-4": {
+            "Tessera\\Inventory\\": "src/",
+            "Tessera\\Inventory\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tessera\\Inventory\\InventoryModule"
+            ]
+        }
+    }
+}

@@ -1,6 +1,6 @@
 # Implementation plan: modular architecture
 
-Status: phases 0 and 1 complete (2026-11-10). Phase 2 is next.
+Status: phases 0, 1, and 2 complete (2026-11-10). Phase 3 is next.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
@@ -49,40 +49,49 @@ Left for the phase that first needs them:
 - Per-module settings pages and per-organization module settings (the `settings` column exists; nothing reads it yet).
 - Module console commands and scheduled work; a module registers these itself in `bootModule()`.
 - `modules/` in `phpstan.neon`, added with the first real module since there is nothing there to analyse yet.
-- A module booting through Composer package discovery has not been exercised; the fixtures are registered at test time. Phase 2 proves it.
+- A module booting through Composer package discovery was not exercised until phase 2, which proved it.
 
 ## Phase 2: Inventory module
 
-Port Sunny's inventory as `modules/inventory` (`tessera/inventory`, namespace `Tessera\Inventory`).
+Done. Sunny's inventory now lives in `modules/inventory` (`tessera/inventory`, namespace `Tessera\Inventory`), installed through the path repository and found by package discovery.
 
-Bring across:
+Brought across:
 
-- [ ] Add `modules/` to `phpstan.neon`, and confirm the module boots through package discovery.
-- [ ] `Item` model, `ItemType` enum, `ItemFactory`, and one squashed migration for `inventory_items` (the Sunny history of containers merging into items is not needed).
-- [ ] Actions: `CreateItem`, `UpdateItem`, `DuplicateItem`, `MoveItemToTeam`, `GenerateItemQrCode`.
-- [ ] `ItemPolicy`, rewritten on module permissions: `inventory:view` (member), `inventory:manage` (member), `inventory:delete` (admin). Sunny's policy only checks membership.
-- [ ] Index and show pages with their modals and tests, moved to the `inventory::` Livewire namespace.
-- [ ] The `i/{item}` QR deep link.
-- [ ] Dashboard items widget.
-- [ ] Sunny's user documentation for inventory, as the start of `docs/`.
+- [x] `modules/` added to `phpstan.neon` (tests and views excluded); the module boots through package discovery.
+- [x] `Item` model, `ItemType` enum, `ItemFactory`, and one squashed migration for `inventory_items`.
+- [x] Actions: `CreateItem`, `UpdateItem`, `DuplicateItem`, `MoveItemToTeam`, `GenerateItemQrCode`, plus `StoreItemPhoto` and `CreateThumbnail`.
+- [x] `ItemPolicy` on module permissions: `inventory:view` (member), `inventory:manage` (member), `inventory:delete` (admin).
+- [x] Index and show pages with their modals, as `inventory::index` and `inventory::show`. They share the abstract `Tessera\Inventory\Livewire\InventoryPage` class, a class rather than a trait so PHPStan analyses it.
+- [x] The `i/{item}` QR deep link, registered by the module and limited to numeric ids so it cannot shadow an organization whose slug is `i`.
+- [x] Dashboard widget of recently added items.
+- [x] User documentation in `docs/users/inventory.md`.
 
-Change on the way in:
+Changed on the way in:
 
-- [ ] **Replace Flux Pro components.** Free Flux now includes `flux:table`, so the tables carry over. `flux:date-picker` and `flux:file-upload` do not; rebuild those with native inputs and Livewire uploads as shared core components. Audit every other `flux:` tag against the free component list (see the `fluxui-development` skill).
-- [ ] **Photos on any disk.** Sunny calls `Storage::temporaryUrl()`, which assumes S3. Cloud uses object storage and self-hosters may use `local`, so put this behind one core helper that returns a URL for a stored file on whichever disk is configured, and test it against both.
-- [ ] **Tenant isolation tests.** For every page and action, a test that a member of one organization cannot see or change another organization's items. Sunny's `viewAny` and `create` return `true` unconditionally; tighten them.
-- [ ] **Portable SQL.** `Item::descendantIds()` uses a recursive CTE with a hard-coded table name. Confirm it on SQLite, MySQL, MariaDB, and PostgreSQL, and use the model's table name.
-- [ ] Module-owned dependencies: `bacon/bacon-qr-code` and `spatie/simple-excel` go in the module's `composer.json`, not the root. (Adding them needs sign-off as a dependency change.)
-- [ ] Drop the Pennant feature class; the module system replaces it.
+- [x] **No Flux Pro.** The listbox selects became native selects, and the file upload became `x-file-input`, a core Blade component around a native file input. The date picker was only used by the Amazon import, which was not ported.
+- [x] **Photos on any disk.** `App\Modules\StoredFile::url()` returns a signed temporary URL when the disk provides one (object storage, and the private local disk) and the public URL otherwise. Photos are stored under `teams/{id}/inventory`.
+- [x] **Tenant isolation.** `modules/inventory/tests/TenantIsolationTest.php` covers every page and action. Every query starts from `Item::forTeam()`, and parents are validated against the organization, which Sunny did not do. An item also cannot be placed inside itself or its own contents.
+- [x] **Portable SQL.** `Item::descendantIds()` uses the model's table name. The whole suite passes on SQLite, PostgreSQL, and MySQL.
+- [x] `bacon/bacon-qr-code` is required by the module's `composer.json`. `spatie/simple-excel` was not added; nothing uses it until import and export exist.
+- [x] Pennant feature class dropped.
+- [x] Thumbnails need the GD extension; without it the full photo is shown instead.
 
-Leave behind for now:
+Behaviour that differs from Sunny:
+
+- Members cannot delete items; admins and owners can.
+- Moving an item to another organization needs `inventory:manage` in both, needs Inventory enabled in the destination, takes the photo along, and leaves the item's contents behind.
+- A QR link returns 404, not 403, to someone who may not view the item.
+- The parent pickers load their options only once the form is opened or items are selected, so a large inventory is not loaded on every render.
+
+Left behind for now:
 
 - Amazon order import (household-specific).
 - REST API, MCP tools, and `client_uuid` mobile sync. These come back in phase 6 once core has an API story.
+- A searchable parent picker. The native select is fine for hundreds of items and will want replacing for thousands.
+
+Verified: `composer remove tessera/inventory` leaves an app whose core suite passes. Two core tests assumed no module was installed and now set that up themselves.
 
 After the straight port, a separate pass should fit the model to nonprofits, which is a product conversation rather than a porting task: quantities and units, condition, value and funding source for grant and insurance reporting, and check-out to people (which will want the Members module).
-
-Done when: Inventory can be enabled for an organization and used end to end; `composer remove tessera/inventory` leaves an app whose core suite passes; the module's suite passes on SQLite and one server database.
 
 ## Phase 3: Prove the boundary with a second module
 

@@ -3,10 +3,13 @@
 use App\Models\Team;
 use App\Models\User;
 use App\Modules\Facades\Modules;
+use App\Modules\ModuleRegistry;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 test('module:list reports when no modules are installed', function () {
+    app()->instance(ModuleRegistry::class, new ModuleRegistry);
+
     $this->artisan('module:list')
         ->expectsOutputToContain('No modules are installed.')
         ->assertSuccessful();

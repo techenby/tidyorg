@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\TeamRole;
+use App\Models\Team;
+use App\Models\User;
 use App\Modules\Module;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
@@ -66,4 +69,31 @@ function installModules(array $providers = [ExampleModule::class], string|array 
     Route::getRoutes()->refreshActionLookups();
 
     Artisan::call('migrate');
+}
+
+/**
+ * Create a user who owns an organization with the given modules enabled.
+ */
+function ownerWithModules(string ...$modules): User
+{
+    $owner = User::factory()->create();
+
+    foreach ($modules as $module) {
+        $owner->currentTeam->modules()->create(['module' => $module]);
+    }
+
+    return $owner;
+}
+
+/**
+ * Create a user who belongs only to the given organization, with the given role.
+ */
+function teammate(Team $team, TeamRole $role = TeamRole::Member): User
+{
+    $user = User::factory()->withoutTeam()->create();
+
+    $team->members()->attach($user, ['role' => $role->value]);
+    $user->switchTeam($team);
+
+    return $user;
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36b035a1dbcd443e2ffcae4f3b4160a0",
+    "content-hash": "7e2cb0ed574f21da762dc99eaac29eb3",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7424,6 +7424,44 @@
             "time": "2026-10-26T21:55:04+00:00"
         },
         {
+            "name": "tessera/inventory",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "modules/inventory",
+                "reference": "95b43dd5b40868c9d00c09c2e66dcafe0273e634"
+            },
+            "require": {
+                "bacon/bacon-qr-code": "^3.0",
+                "php": "^8.3"
+            },
+            "suggest": {
+                "ext-exif": "Rotates thumbnails of phone photos the right way up.",
+                "ext-gd": "Creates small thumbnails of item photos."
+            },
+            "type": "tessera-module",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Tessera\\Inventory\\InventoryModule"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Tessera\\Inventory\\": "src/",
+                    "Tessera\\Inventory\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Tessera module for tracking what an organization owns and where it is kept.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.4.0",
             "source": {
@@ -11710,7 +11748,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "tessera/inventory": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
