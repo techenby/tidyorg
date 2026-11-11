@@ -1,8 +1,11 @@
 <?php
 
 use App\Enums\TeamRole;
+use App\Models\Team;
 use App\Models\User;
 use App\Modules\Facades\Modules;
+use App\Modules\OrganizationSettings;
+use Illuminate\Support\Facades\View;
 use Livewire\Livewire;
 use Tests\Fixtures\Modules\Dependent\DependentModule;
 use Tests\Fixtures\Modules\Example\ExampleModule;
@@ -107,4 +110,26 @@ test('turning on a module with an unmet dependency changes nothing', function ()
         ->assertNoRedirect();
 
     expect(Modules::enabled('dependent', $owner->currentTeam->fresh()))->toBeFalse();
+});
+
+test('a section added to the organization settings page is shown only to the people it allows', function () {
+    View::addNamespace('fixtures', base_path('tests/Fixtures/views'));
+
+    app(OrganizationSettings::class)->section(
+        'fixtures::settings-section',
+        fn (User $user, Team $team): bool => $user->ownsTeam($team),
+    );
+
+    $owner = User::factory()->create();
+    $team = $owner->currentTeam;
+
+    $this->actingAs($owner)
+        ->get(route('teams.edit', ['team' => $team->slug]))
+        ->assertOk()
+        ->assertSee("Extra settings for {$team->name}");
+
+    $this->actingAs(teammate($team, TeamRole::Admin))
+        ->get(route('teams.edit', ['team' => $team->slug]))
+        ->assertOk()
+        ->assertDontSee('data-test="fixture-settings-section"', false);
 });

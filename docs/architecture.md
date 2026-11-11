@@ -99,6 +99,10 @@ When a module needs something that no extension point offers, add an extension p
 
 The boundary is enforced by `tests/Feature/ArchTest.php`, which reads every `modules/*/composer.json` and fails when a module uses another module it does not require, or reaches into core beyond `App\Models`, `App\Enums`, `App\Concerns`, and `App\Modules`. CI runs the suite with no modules, with each module alone, and with all of them, on SQLite, PostgreSQL, and MySQL. Tests install modules with the `installModules()` helper in `tests/Pest.php`.
 
+### Organization settings sections
+
+A module or a hosting package can add a section to the organization settings page: `app(OrganizationSettings::class)->section('inventory::settings', fn (User $user, Team $team) => ...)`. The view receives the organization as `$team`, and the callback decides who sees it. The section's own actions must still authorize themselves.
+
 ### Capabilities: modules working together without depending on each other
 
 Inventory can record who has an item, and Members keeps the list of people, yet neither references the other. Core owns the contract, `App\Modules\Contracts\PeopleDirectory`. Members offers an implementation from `capabilities()`. Inventory asks `Modules::capability(PeopleDirectory::class, $team)` and gets it only when a module enabled for that organization provides one; otherwise it gets `null` and hides the feature.

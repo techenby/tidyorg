@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Modules\AllowAllModules;
 use App\Modules\Contracts\ModuleEntitlements;
 use App\Modules\ModuleRegistry;
+use App\Modules\OrganizationSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Support\Facades\Date;
@@ -20,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singletonIf(ModuleRegistry::class);
+        $this->app->singletonIf(OrganizationSettings::class);
         $this->app->bindIf(ModuleEntitlements::class, AllowAllModules::class);
     }
 

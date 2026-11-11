@@ -1,12 +1,11 @@
 <?php
 
+use App\Actions\Teams\CloseTeam;
 use App\Data\UserTeam;
 use App\Models\Team;
-use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -27,7 +26,7 @@ new class extends Component {
         return __('Type ":name" to confirm', ['name' => $this->team->name]);
     }
 
-    public function deleteTeam(): void
+    public function deleteTeam(CloseTeam $closeTeam): void
     {
         Gate::authorize('delete', $this->team);
 
@@ -41,14 +40,7 @@ new class extends Component {
             return;
         }
 
-        DB::transaction(function () {
-            User::where('current_team_id', $this->team->id)
-                ->each(fn (User $affectedUser) => $affectedUser->switchToFallbackTeam($this->team));
-
-            $this->team->invitations()->delete();
-            $this->team->memberships()->delete();
-            $this->team->delete();
-        });
+        $closeTeam->handle($this->team);
 
         Flux::toast(variant: 'success', text: __('Organization deleted.'));
 

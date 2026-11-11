@@ -294,6 +294,10 @@ new class extends Component
                 <livewire:pages::teams.modules :team="$teamModel" />
             @endif
 
+            @foreach (app(\App\Modules\OrganizationSettings::class)->sectionsFor($teamModel, auth()->user()) as $section)
+                @include($section, ['team' => $teamModel])
+            @endforeach
+
             @can('export', $teamModel)
                 <livewire:pages::teams.export :team="$teamModel" />
             @endcan
