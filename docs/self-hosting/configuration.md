@@ -72,6 +72,31 @@ AWS_ENDPOINT=https://...
 
 `AWS_ENDPOINT` is only needed for services other than Amazon S3. The Docker image does not include this library.
 
+## Deleted organizations
+
+When an owner deletes an organization, it is closed straight away and its data is kept for 30 days before being permanently deleted. Change the delay with:
+
+```
+TESSERA_CLOSED_ORGANIZATION_DAYS=30
+```
+
+To delete one immediately, or to take a copy of everything an organization has stored:
+
+```sh
+php artisan organization:purge riverside-food-bank
+php artisan organization:export riverside-food-bank
+```
+
+The export is a zip file in `storage/app/private/teams/<number>/exports`. It is removed after a week.
+
+## Source code link
+
+Tessera is licensed under the AGPL. If you change its code and let other people use your version, the licence requires you to offer them your changes. Publish your version and set its address, and Tessera links to it from the sign-in page and the sidebar:
+
+```
+TESSERA_SOURCE_URL=https://example.org/our-tessera
+```
+
 ## Modules
 
 `TESSERA_MODULES` chooses which modules the install offers. See [modules.md](modules.md).

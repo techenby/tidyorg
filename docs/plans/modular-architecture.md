@@ -1,6 +1,6 @@
 # Implementation plan: modular architecture
 
-Status: phases 0 to 4 complete (2026-11-10). Phase 5 is next.
+Status: phases 0 to 4 complete (2026-11-10). Phase 5 is in progress: the parts in this repository are done, the private package and the deployment are not started.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
@@ -139,14 +139,24 @@ Notes for later phases:
 
 Paying customers are hosted on Laravel Cloud as one multi-tenant deployment. Use the `deploying-to-cloud` skill for the mechanics.
 
-- [ ] Private `tessera/cloud` package: subscription billing, plan limits, a `ModuleEntitlements` implementation (permissive for now, since no feature is paid-only), self-serve organization sign-up and provisioning, operator admin.
+Done in this repository (2026-11-10):
+
+- [x] Per-organization deletion: `PurgeTeam` runs every module's `purging` hook and removes the organization and its files. Deleting in settings closes the organization; `organization:prune` purges it after `TESSERA_CLOSED_ORGANIZATION_DAYS`; `organization:purge` does it at once. Before this, deleting an organization left all of its module data and files behind.
+- [x] Per-organization export: `ExportTeam` and `organization:export`, with an `exporting` hook on every module. Run by an operator for now.
+- [x] The source offer AGPL requires: `TESSERA_SOURCE_URL` and `TESSERA_SOURCE_REVISION` link the repository and the running commit from the sign-in pages and the sidebar.
+- [x] Migration review: every migration to date either creates a table or adds nullable columns (`inventory_items.checked_out_to`, `checked_out_at`), so all are safe to run while the previous release is serving.
+- [x] Audit for local disk and in-memory state. Uploads, thumbnails, exports, and Livewire's temporary uploads all go through the default disk. Sessions, cache, and the queue are database-backed. Nothing is held between requests. Two settings matter on Cloud: `APP_MAINTENANCE_DRIVER=cache`, because the default writes a file to local disk, and `TESSERA_TRUSTED_PROXIES=*`.
+- [x] No new core contract was needed for billing. A hosting package can add its own middleware to the `web` group to block an unpaid organization, and `ModuleEntitlements` already covers which modules a plan includes. Add a limits contract only when a plan with a limit exists.
+
+Still to do, outside this repository:
+
+- [ ] Private `tessera/cloud` package: subscription billing, plan limits, a `ModuleEntitlements` implementation (permissive for now, since no feature is paid-only), operator admin. It also requires the S3 driver (`league/flysystem-aws-s3-v3`), which core does not.
 - [ ] Private deployment repository that tracks this one and adds the `tessera/cloud` requirement and lock entry. Laravel Cloud deploys from it; Composer credentials for the private package are supplied as a build secret.
-- [ ] Laravel Cloud environment: PostgreSQL, object storage as the default filesystem disk, a queue worker, the scheduler, a cache store, and transactional mail. `TESSERA_MODULES=*`, single-organization mode off.
-- [ ] Deploy command runs `php artisan migrate --force`; confirm every migration to date is safe to run while the previous release is still serving.
-- [ ] Audit for anything written to local disk or held in memory between requests.
-- [ ] Any contract Cloud needs that core lacks (usage limits, for example) is added to core with a permissive default, never as an edition check.
-- [ ] Offer the running source to Cloud users as AGPL requires: a footer link to the repository and the deployed commit.
-- [ ] Customer-facing operations: backups and restore, per-organization data export, per-organization deletion on cancellation (which exercises every module's `purging` hook).
+- [ ] Laravel Cloud environment: PostgreSQL, object storage as the default filesystem disk, a queue worker, the scheduler, a cache store, and transactional mail. `TESSERA_MODULES=*`, single-organization mode off, and the settings named above.
+- [ ] Deploy command runs `php artisan tessera:upgrade`.
+- [ ] Self-serve sign-up already works with single-organization mode off (register, then create an organization). Decide where payment sits in that flow.
+- [ ] Customer-facing: an owner-run export from organization settings, restoring a closed organization inside the retention period, and database backups (Laravel Cloud's own).
+- [ ] Replace the starter kit's welcome page, which is what Cloud visitors see at `/`.
 
 Done when: a new customer can sign up, pay, create an organization, enable modules, and use them on the Cloud deployment, and a cancelled organization's data can be exported and removed.
 

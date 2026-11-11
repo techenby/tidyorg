@@ -1,5 +1,7 @@
 <?php
 
+use App\Actions\Teams\ExportTeam;
+use App\Actions\Teams\PurgeTeam;
 use App\Enums\TeamRole;
 use App\Modules\Facades\Modules;
 use Illuminate\Support\Facades\Storage;
@@ -118,4 +120,41 @@ test('a thumbnail is not created for a file that is not an image', function () {
     Storage::put('teams/1/inventory/notes.jpg', 'not an image');
 
     expect(app(CreateThumbnail::class)->handle('teams/1/inventory/notes.jpg'))->toBeNull();
+});
+
+test('an export holds the organization\'s items and their photos, and nothing of another organization', function () {
+    Storage::fake();
+
+    $team = ownerWithModules('inventory')->currentTeam;
+    $otherTeam = ownerWithModules('inventory')->currentTeam;
+
+    $bin = Item::factory()->for($team)->bin()->create(['name' => 'Blue bin']);
+    $path = Item::storageDirectory($team->id).'/drill.jpg';
+    Storage::put($path, 'photo');
+    Item::factory()->for($team)->childOf($bin)->create(['name' => 'Drill', 'photo_path' => $path, 'metadata' => ['Brand' => 'Acme']]);
+    Item::factory()->for($team)->create(['name' => 'Thrown away'])->delete();
+    Item::factory()->for($otherTeam)->create(['name' => 'Theirs']);
+
+    $archive = new ZipArchive;
+    $archive->open(Storage::path(app(ExportTeam::class)->handle($team)));
+    $items = collect(json_decode((string) $archive->getFromName('inventory/items.json'), true))->keyBy('name');
+
+    expect($items->keys()->all())->toEqualCanonicalizing(['Blue bin', 'Drill', 'Thrown away'])
+        ->and($items['Drill'])->toMatchArray(['inside' => $bin->id, 'type' => 'item', 'details' => ['Brand' => 'Acme'], 'photo' => 'inventory/files/drill.jpg'])
+        ->and($items['Thrown away']['deleted_at'])->not->toBeNull()
+        ->and($archive->getFromName('inventory/files/drill.jpg'))->toBe('photo');
+});
+
+test('deleting an organization for good removes its items and photos', function () {
+    Storage::fake();
+
+    $team = ownerWithModules('inventory')->currentTeam;
+    $path = Item::storageDirectory($team->id).'/drill.jpg';
+    Storage::put($path, 'photo');
+    Item::factory()->for($team)->create(['photo_path' => $path]);
+
+    app(PurgeTeam::class)->handle($team);
+
+    expect(Item::withTrashed()->count())->toBe(0)
+        ->and(Storage::exists($path))->toBeFalse();
 });

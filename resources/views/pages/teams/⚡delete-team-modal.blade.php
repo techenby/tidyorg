@@ -70,7 +70,7 @@ new class extends Component {
         <div>
             <flux:heading size="lg">{{ __('Are you sure?') }}</flux:heading>
             <flux:subheading>
-                {{ __('This action cannot be undone. This will permanently delete the organization ":name".', ['name' => $team->name]) }}
+                {{ trans_choice('{0} This cannot be undone. ":name" is closed straight away, and everything stored for it is permanently deleted within a day.|{1} This cannot be undone. ":name" is closed straight away, and everything stored for it is permanently deleted after :count day.|[2,*] This cannot be undone. ":name" is closed straight away, and everything stored for it is permanently deleted after :count days.', (int) config('tessera.closed_organization_days'), ['name' => $team->name]) }}
             </flux:subheading>
         </div>
 

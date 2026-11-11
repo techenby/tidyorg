@@ -29,4 +29,5 @@ Tessera is an open-source, self-hosted application for nonprofits (inventory, me
 - Configuration and routes are cached in production. Call `env()` only in `config/`. A setting a self-hoster may change goes in `config/tessera.php`, `.env.example`, `compose.yaml`, and `docs/self-hosting/configuration.md`.
 - `php artisan tessera:upgrade` must be the only step after new code is in place. If a change needs anything else at upgrade time, do it in a migration or add it to that command.
 - A PHP extension a module needs goes in that module's `composer.json` and in the `Dockerfile`.
+- Every module implements `exporting()` and `purging()` for everything it stores, and keeps its files under `Team::storageDirectory($id).'/<key>'`. Deleting an organization is a soft delete; `PurgeTeam` is the only permanent deletion and `ExportTeam` the only export. Loop over `Modules::holdingData()`, not `installed()`, when touching module tables.
 - New feature area and unsure where it goes: make it a module.

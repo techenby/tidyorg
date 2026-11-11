@@ -36,6 +36,9 @@
         <env name="TESSERA_MODULES" value="*"/>
         <env name="TESSERA_SINGLE_ORGANIZATION" value="false"/>
         <env name="TESSERA_TRUSTED_PROXIES" value=""/>
+        <env name="TESSERA_SOURCE_URL" value=""/>
+        <env name="TESSERA_SOURCE_REVISION" value=""/>
+        <env name="TESSERA_CLOSED_ORGANIZATION_DAYS" value="30"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

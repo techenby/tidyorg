@@ -34,15 +34,13 @@
 
             <flux:spacer />
 
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
+            @if (config('tessera.source.url'))
+                <flux:sidebar.nav>
+                    <flux:sidebar.item icon="folder-git-2" :href="config('tessera.source.url')" target="_blank" data-test="source-link">
+                        {{ __('Source code') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.nav>
+            @endif
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>

@@ -125,6 +125,11 @@ The starter kit's `TeamPermission` enum cannot be extended from a package, so mo
 | Purge for an organization (`module:purge <key> --team=`) | Explicit, confirmed, destructive: deletes that organization's rows and stored files for the module. Tables stay. This is the only purge used on Cloud. |
 | Purge for a deployment (`module:purge <key>`) | Explicit, confirmed, destructive: rolls back the module's migrations and deletes its stored files. Required before uninstalling if the tables should go. Self-hosted only. |
 | Uninstall (`composer remove`) | Code and dependencies removed. Refuses while the module is active. |
+| Delete an organization (owner, in settings) | The organization is closed at once and nobody can open it. Its data stays for `TESSERA_CLOSED_ORGANIZATION_DAYS` (30 by default) in case it was a mistake. |
+| Purge an organization (`organization:prune` daily, or `organization:purge <slug>`) | Permanent. Every module that holds data runs its `purging` hook, then core deletes the organization, its memberships and invitations, and its whole `teams/<id>` directory on the disk. |
+| Export an organization (`organization:export <slug>`) | A zip on the default disk with core's records and, through each module's `exporting` hook, every module's records and files. Exports are deleted after a week. |
+
+Every module must declare both `exporting` and `purging`, even when it stores nothing; the architecture tests check this. Both hooks reach a module that is switched off, because its data is still there. A module keeps its files under `Team::storageDirectory($id)/<key>`, so a purge removes them even if the module's hook misses one.
 
 Deleting data is never a side effect of flipping a switch.
 
@@ -146,6 +151,7 @@ This shapes core and every module, whether or not a given change is "for Cloud":
 - **No deployment-wide destructive commands.** On Cloud, purging is per organization. Dropping a module's tables is a self-hosted operation.
 - **Work that takes time goes on the queue; recurring work goes on the scheduler.** Web processes may be stopped or scaled at any time, so nothing may rely on in-memory state or a long-lived request.
 - **PostgreSQL is the Cloud database** and therefore the primary one in CI. SQLite and MySQL/MariaDB remain supported for self-hosters.
+- **The source offer is in the interface.** The AGPL gives everyone who uses an install over a network the right to its source. `TESSERA_SOURCE_URL` and `TESSERA_SOURCE_REVISION` put a link to the repository and the running commit on the sign-in pages and in the sidebar. Cloud sets both; so must anyone who runs a modified copy.
 - **The Cloud deployment is built from a private deployment repository** that tracks this one and adds only the `tessera/cloud` requirement and its lock entry. This repository never mentions the cloud package.
 
 ### How self-hosting works

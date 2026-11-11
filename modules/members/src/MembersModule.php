@@ -7,6 +7,7 @@ use App\Models\Team;
 use App\Modules\Contracts\PeopleDirectory;
 use App\Modules\Module;
 use App\Modules\NavigationItem;
+use App\Modules\OrganizationExport;
 use Illuminate\Support\Facades\Gate;
 use Tessera\Members\Models\Member;
 use Tessera\Members\Policies\MemberPolicy;
@@ -61,6 +62,20 @@ class MembersModule extends Module
         return [
             PeopleDirectory::class => MemberDirectory::class,
         ];
+    }
+
+    public function exporting(Team $team, OrganizationExport $export): void
+    {
+        $export->records('members', Member::query()->forTeam($team)->orderBy('id')->get()->map(fn (Member $member): array => [
+            'id' => $member->id,
+            'name' => $member->name,
+            'email' => $member->email,
+            'phone' => $member->phone,
+            'joined_on' => $member->joined_on?->toDateString(),
+            'notes' => $member->notes,
+            'created_at' => $member->created_at?->toIso8601String(),
+            'updated_at' => $member->updated_at?->toIso8601String(),
+        ])->all());
     }
 
     public function purging(Team $team): void

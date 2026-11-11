@@ -6,6 +6,7 @@ use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Modules\Module;
 use App\Modules\NavigationItem;
+use App\Modules\OrganizationExport;
 use App\Modules\Widget;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,23 @@ class InventoryModule extends Module
     /**
      * Delete the organization's items and their stored photos.
      */
+    public function exporting(Team $team, OrganizationExport $export): void
+    {
+        $export->records('items', Item::withTrashed()->forTeam($team)->orderBy('id')->get()->map(fn (Item $item): array => [
+            'id' => $item->id,
+            'inside' => $item->parent_id,
+            'type' => $item->type->value,
+            'name' => $item->name,
+            'details' => $item->metadata ?? [],
+            'photo' => $export->file($item->photo_path),
+            'checked_out_to' => $item->checked_out_to,
+            'checked_out_at' => $item->checked_out_at?->toIso8601String(),
+            'created_at' => $item->created_at?->toIso8601String(),
+            'updated_at' => $item->updated_at?->toIso8601String(),
+            'deleted_at' => $item->deleted_at?->toIso8601String(),
+        ])->all());
+    }
+
     public function purging(Team $team): void
     {
         Storage::deleteDirectory(Item::storageDirectory($team->id));

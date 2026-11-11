@@ -1,8 +1,10 @@
 <?php
 
+use App\Actions\Teams\ExportTeam;
 use App\Enums\TeamRole;
 use App\Modules\Contracts\PeopleDirectory;
 use App\Modules\Facades\Modules;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tessera\Members\Models\Member;
 
@@ -168,4 +170,18 @@ test('purging an organization removes its members and leaves other organizations
         ->assertSuccessful();
 
     expect(Member::pluck('id')->all())->toBe([$kept->id]);
+});
+
+test('an export holds the organization\'s members and nobody else\'s', function () {
+    Storage::fake();
+
+    Member::factory()->for($this->team)->create(['name' => 'Ada Okafor', 'email' => 'ada@example.org']);
+    Member::factory()->for(ownerWithModules('members')->currentTeam)->create(['name' => 'Someone Else']);
+
+    $archive = new ZipArchive;
+    $archive->open(Storage::path(app(ExportTeam::class)->handle($this->team)));
+    $members = json_decode((string) $archive->getFromName('members/members.json'), true);
+
+    expect($members)->toHaveCount(1)
+        ->and($members[0])->toMatchArray(['name' => 'Ada Okafor', 'email' => 'ada@example.org']);
 });

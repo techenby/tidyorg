@@ -34,7 +34,7 @@ class ModulePurgeCommand extends Command
 
         return $this->option('team') !== null
             ? $this->purgeTeam($module)
-            : $this->purgeDeployment($module, $migrator);
+            : $this->purgeDeployment($module, $modules, $migrator);
     }
 
     /**
@@ -64,12 +64,18 @@ class ModulePurgeCommand extends Command
     /**
      * Delete every organization's data for the module and drop its tables.
      */
-    protected function purgeDeployment(Module $module, Migrator $migrator): int
+    protected function purgeDeployment(Module $module, ModuleRegistry $modules, Migrator $migrator): int
     {
         if (Team::count() > 1 && ! $this->option('force')) {
             $this->components->error('This deployment has several organizations. Purge one with --team=<slug>, or pass --force to purge them all and drop the module\'s tables.');
 
             return self::FAILURE;
+        }
+
+        if (! $modules->holdingData()->has($module->key())) {
+            $this->components->info("[{$module->key()}] has never been switched on here, so there is nothing to purge.");
+
+            return self::SUCCESS;
         }
 
         if (! $this->confirmed("Permanently delete all {$module->name()} data and drop its tables?")) {

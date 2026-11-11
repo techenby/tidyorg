@@ -15,6 +15,8 @@
                 <div class="flex flex-col gap-6">
                     {{ $slot }}
                 </div>
+
+                @include('partials.source-link')
             </div>
         </div>
 

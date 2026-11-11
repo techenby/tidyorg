@@ -72,6 +72,28 @@ class ModuleRegistry
         return $this->installed()->only($keys);
     }
 
+    /**
+     * The installed modules that may hold data here: those whose database tables have been created.
+     *
+     * A module that was active once and is now switched off still holds its
+     * data, so exporting and purging must reach it. A module that was never
+     * active has no tables to read.
+     *
+     * @return Collection<string, Module>
+     */
+    public function holdingData(): Collection
+    {
+        $migrator = app('migrator');
+
+        $ran = $migrator->repositoryExists() ? $migrator->getRepository()->getRan() : [];
+
+        return $this->installed()->filter(function (Module $module) use ($migrator, $ran): bool {
+            $migrations = array_keys($migrator->getMigrationFiles($module->migrationPath()));
+
+            return $migrations === [] || array_intersect($migrations, $ran) !== [];
+        });
+    }
+
     public function find(string $key): ?Module
     {
         return $this->modules[$key] ?? null;

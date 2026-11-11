@@ -130,6 +130,16 @@ abstract class Module extends ServiceProvider
     }
 
     /**
+     * Add everything the module stores for an organization to an export of its data.
+     *
+     * The export already writes into a folder named after the module's key.
+     */
+    public function exporting(Team $team, OrganizationExport $export): void
+    {
+        //
+    }
+
+    /**
      * Bootstrap anything beyond routes, views, migrations, and translations.
      */
     protected function bootModule(): void

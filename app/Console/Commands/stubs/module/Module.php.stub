@@ -6,6 +6,7 @@ use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Modules\Module;
 use App\Modules\NavigationItem;
+use App\Modules\OrganizationExport;
 
 class {{ studly }}Module extends Module
 {
@@ -42,6 +43,14 @@ class {{ studly }}Module extends Module
         return [
             new NavigationItem('{{ name }}', '{{ key }}.index', 'puzzle-piece', '{{ key }}:view'),
         ];
+    }
+
+    /**
+     * Add everything this module stores for the organization to an export of its data.
+     */
+    public function exporting(Team $team, OrganizationExport $export): void
+    {
+        //
     }
 
     /**

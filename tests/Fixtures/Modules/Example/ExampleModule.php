@@ -6,6 +6,7 @@ use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Modules\Module;
 use App\Modules\NavigationItem;
+use App\Modules\OrganizationExport;
 use App\Modules\Widget;
 use Illuminate\Support\Facades\DB;
 
@@ -52,6 +53,11 @@ class ExampleModule extends Module
         return [
             new Widget('example::widget', 'example:view'),
         ];
+    }
+
+    public function exporting(Team $team, OrganizationExport $export): void
+    {
+        $export->records('things', DB::table('example_things')->where('team_id', $team->id)->get(['name'])->map(fn (object $thing): array => ['name' => $thing->name])->all());
     }
 
     public function purging(Team $team): void

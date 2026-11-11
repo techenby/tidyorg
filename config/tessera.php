@@ -43,4 +43,34 @@ return [
 
     'trusted_proxies' => env('TESSERA_TRUSTED_PROXIES'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Closed Organizations
+    |--------------------------------------------------------------------------
+    |
+    | When an owner deletes an organization it is closed straight away, and
+    | everything stored for it is permanently deleted this many days later.
+    | The delay leaves time to recover from a mistake.
+    |
+    */
+
+    'closed_organization_days' => (int) env('TESSERA_CLOSED_ORGANIZATION_DAYS', 30),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Source Code
+    |--------------------------------------------------------------------------
+    |
+    | Tessera is licensed under the AGPL, which gives everyone who uses an
+    | install over a network the right to its source code. The interface
+    | links to this address. If you change Tessera, publish your version
+    | and point this at it. The revision is the commit that is running.
+    |
+    */
+
+    'source' => [
+        'url' => env('TESSERA_SOURCE_URL'),
+        'revision' => env('TESSERA_SOURCE_REVISION'),
+    ],
+
 ];

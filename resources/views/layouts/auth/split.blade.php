@@ -35,6 +35,8 @@
                         <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
                     </a>
                     {{ $slot }}
+
+                    @include('partials.source-link')
                 </div>
             </div>
         </div>

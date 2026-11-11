@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Module;
 use Composer\InstalledVersions;
 
 arch('core never depends on a module')
@@ -33,6 +34,21 @@ foreach ($modules as $name => $module) {
             'App\Providers',
             'App\Rules',
         ]);
+
+    /*
+     * An organization's data must be exportable and deletable in full, so
+     * every module says what it stores, even when the answer is nothing.
+     */
+    test("{$name} says how its data is exported and purged", function () use ($module) {
+        $provider = collect(get_declared_classes())
+            ->first(fn (string $class): bool => str_starts_with($class, $module['namespace'].'\\') && is_subclass_of($class, Module::class));
+
+        expect($provider)->not->toBeNull();
+
+        foreach (['exporting', 'purging'] as $hook) {
+            expect((new ReflectionMethod($provider, $hook))->getDeclaringClass()->getName())->toBe($provider);
+        }
+    });
 
     $undeclared = $modules
         ->reject(fn (array $other, string $otherName): bool => $otherName === $name || in_array($otherName, $module['requires'], true))

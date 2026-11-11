@@ -53,6 +53,16 @@ class Team extends Model
     }
 
     /**
+     * The directory on the default disk that holds everything stored for an organization.
+     *
+     * A module keeps its files in a folder of its own inside it, named after its key.
+     */
+    public static function storageDirectory(int $teamId): string
+    {
+        return "teams/{$teamId}";
+    }
+
+    /**
      * Get the team owner.
      */
     public function owner(): ?Model
