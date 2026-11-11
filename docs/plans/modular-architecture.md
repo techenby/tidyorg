@@ -1,6 +1,6 @@
 # Implementation plan: modular architecture
 
-Status: phases 0 to 4 complete (2026-11-10). Phase 5 is nearly complete: the private package and the Laravel Cloud environment exist; the configured deployment, Stripe, and mail are still to do.
+Status: phases 0 to 4 complete (2026-11-10). Phase 5 is nearly complete (2026-11-11): Cloud runs at tidyorg.app with billing checked in Stripe's test mode and mail working. Registration there is by invitation until live payments are set up.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
@@ -159,13 +159,16 @@ Done outside this repository (2026-11-10):
 
 Still to do:
 
-- [ ] Deploy with the settings above and check it end to end. Only the first, unconfigured build has run.
-- [ ] Stripe: a product and price, API keys, the webhook endpoint, and the customer portal. Then check checkout, the portal, and webhooks in test mode; the package's tests never call Stripe.
-- [ ] Outgoing mail (Resend through Laravel Cloud needs a verified sending domain). Until then nobody can confirm their email address, so nobody can sign up.
-- [ ] A custom domain.
-- [ ] Push this repository before sending anyone to the deployment: the source link points here, and AGPL requires the running code to be available.
+- [x] Deployed with the settings above and checked end to end.
+- [x] Stripe in test mode: a product with monthly and yearly prices, API keys, the webhook endpoint, and the customer portal. Checkout, cancelling and resuming, changing plan, a failed payment, and recovering from one were all checked on the deployment.
+- [ ] Stripe in live mode, and a decision on tax.
+- [x] Outgoing mail through Resend, from `mail.tidyorg.app`.
+- [x] A custom domain, `tidyorg.app`.
+- [x] This repository is pushed, so the source link on the deployment works.
 - [ ] Restoring a closed organization inside the retention period, database backups (Laravel Cloud's own), an operator admin beyond the command line, and warning emails before a trial ends.
-- [ ] Replace the starter kit's welcome page, which is what Cloud visitors see at `/`.
+- [x] A welcome page of Tidy Org's own, which a hosting package can add sections to (`tidyorg.welcome_sections`). Cloud adds a roadmap, pricing, and a form for people who want to be kept posted.
+- [x] `TIDYORG_REGISTRATION=invitation` closes public registration on an install that hosts several organizations. Cloud uses it until live payments are ready.
+- [ ] A logo of Tidy Org's own in place of the starter kit's.
 
 Done when: a new customer can sign up, pay, create an organization, enable modules, and use them on the Cloud deployment, and a cancelled organization's data can be exported and removed.
 

@@ -6,6 +6,10 @@ Tidy Org is built as a small core plus modules. An organization turns on only th
 
 Tidy Org is in early development and is not ready for production use.
 
+## Trying it
+
+To run Tidy Org on your own computer with a sample account, see [docs/trying-it-out.md](docs/trying-it-out.md).
+
 ## Self-hosting
 
 Tidy Org runs with Docker or on any server with PHP 8.4 or newer. See [docs/self-hosting](docs/self-hosting/README.md).
