@@ -1,9 +1,16 @@
 <?php
 
 use App\Http\Middleware\EnsureTeamMembership;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', function (Request $request) {
+    if (! config('tessera.single_organization')) {
+        return view('welcome');
+    }
+
+    return redirect()->to($request->user()?->homeUrl() ?? route('login'));
+})->name('home');
 
 Route::livewire('onboarding', 'pages::onboarding')
     ->middleware(['auth', 'verified'])

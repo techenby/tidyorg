@@ -25,4 +25,8 @@ Tessera is an open-source, self-hosted application for nonprofits (inventory, me
 - Scope a module's queries by organization at the start (`Item::forTeam($team)`), validate ids from the browser against that organization, and authorize every Livewire action; route middleware does not run on Livewire updates.
 - Pass `current_team` explicitly to `route()` inside Livewire components.
 - Module permissions are strings prefixed with the module key (`inventory:view`), checked with `$user->hasTeamPermission($team, 'inventory:view')`.
+- Single-organization mode (`tessera.single_organization`) is the self-hosted default: registration needs a pending invitation and a second organization cannot be created. Show or hide organization creation with `@can('create', Team::class)`, never by reading the setting in a view.
+- Configuration and routes are cached in production. Call `env()` only in `config/`. A setting a self-hoster may change goes in `config/tessera.php`, `.env.example`, `compose.yaml`, and `docs/self-hosting/configuration.md`.
+- `php artisan tessera:upgrade` must be the only step after new code is in place. If a change needs anything else at upgrade time, do it in a migration or add it to that command.
+- A PHP extension a module needs goes in that module's `composer.json` and in the `Dockerfile`.
 - New feature area and unsure where it goes: make it a module.

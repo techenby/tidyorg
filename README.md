@@ -6,9 +6,13 @@ Tessera is built as a small core plus modules. An organization turns on only the
 
 Tessera is in early development and is not ready for production use.
 
+## Self-hosting
+
+Tessera runs with Docker or on any server with PHP 8.4 or newer. See [docs/self-hosting](docs/self-hosting/README.md).
+
 ## Local development
 
-Requires PHP 8.3 or newer, Composer, and Node.
+Requires PHP 8.4 or newer, Composer, and Node.
 
 ```sh
 composer setup

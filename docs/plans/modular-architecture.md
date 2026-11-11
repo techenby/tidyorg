@@ -1,6 +1,6 @@
 # Implementation plan: modular architecture
 
-Status: phases 0 to 3 complete (2026-11-10). Phase 4 is next.
+Status: phases 0 to 4 complete (2026-11-10). Phase 5 is next.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
@@ -113,15 +113,27 @@ Notes:
 
 ## Phase 4: Self-hosting
 
-- [ ] `php artisan tessera:install`: interactive first run. Checks requirements, writes `.env`, migrates, creates the first admin and organization, asks which modules to activate.
-- [ ] `php artisan tessera:upgrade`: maintenance mode, migrate, clear and rebuild caches, restart queue.
-- [ ] Docker image and `docker-compose.yml` (app, queue worker, scheduler, database) with all first-party modules installed and `TESSERA_MODULES` choosing which are active. Assets are prebuilt in the image so self-hosters never need Node.
-- [ ] For non-Docker installs, commit or release-attach built assets for the same reason.
-- [ ] Single-organization mode: registration closed after the first admin, invitations only.
-- [ ] Self-hosting documentation: install, upgrade, backup and restore, choosing modules, removing a module completely.
+Done. The guides are in [../self-hosting/](../self-hosting/README.md).
+
+- [x] `php artisan tessera:install`: checks PHP extensions and writable directories, asks for the address, database (testing the connection), one organization or several, and modules, writes `.env`, migrates, and creates the first administrator and organization. After writing `.env` it finishes in a new process so the new settings apply. It skips the `.env` step when settings come from the environment, and never creates a second administrator.
+- [x] `php artisan tessera:upgrade`: maintenance mode, migrate, clear and rebuild caches, restart queue workers. It stays in maintenance mode when a step fails.
+- [x] `Dockerfile`, `compose.yaml`, and `docker/`: one image (FrankenPHP, PHP 8.5, unprivileged user) run as the web server, the queue worker, and the scheduler, with PostgreSQL. Every first-party module is installed, `TESSERA_MODULES` chooses which are active, and assets are built in the image.
+- [x] `.github/workflows/release.yml`: a version tag publishes a ready-to-run archive (code, PHP dependencies, built assets) and pushes the image to the GitHub container registry.
+- [x] Single-organization mode: registration only with a pending invitation, no second organization, the home page goes to sign-in.
+- [x] `TESSERA_TRUSTED_PROXIES`, for installs behind a reverse proxy that handles HTTPS.
+- [x] Self-hosting documentation: Docker install, server install, configuration, modules (choosing and removing completely), backups and restoring, upgrading.
 - [ ] Revisit slim distribution (Packagist modules, per-module image builds) only if self-hosters ask for it.
 
-Done when: a clean machine goes from nothing to a working single-organization install by following the documentation.
+Checked by hand on 2026-11-10: the installer, an upgrade with cached configuration and routes, and sign-in on a clean copy with SQLite; the compose stack under Podman, including the installer, a queued invitation email, invitation-only registration, file links, and the documented backup commands.
+
+Not yet exercised, because nothing has been pushed: the release workflow, the published image, and installing from a release archive. Do a trial release before pointing anyone at the guides.
+
+Notes for later phases:
+
+- The lock file needs PHP 8.4.1 or newer (Symfony 8), although `composer.json` says `^8.3`. The guides say 8.4. Either raise the constraint or pin `config.platform.php` and re-lock.
+- The S3 driver is not a dependency, so the image cannot use object storage yet. Phase 5 needs it.
+- The home page is still the starter kit's welcome page when several organizations are hosted, and the sidebar still links to the starter kit's repository and documentation.
+- An invited person must confirm their email address, so a self-hosted install with more than one user needs working outgoing mail.
 
 ## Phase 5: Cloud on Laravel Cloud
 
@@ -153,7 +165,7 @@ Done when: a new customer can sign up, pay, create an organization, enable modul
 | Starter-kit updates conflict with Tessera's changes | Keep `Team` naming in code, keep core changes to the kit small and additive, record the upstream commit Tessera started from |
 | Module migrations and core migrations interleave unpredictably | Modules only reference core tables that exist in the initial schema or declare the dependency; purge rolls back by module path, not by batch |
 | Flux Pro creeps back in through copied Sunny code | Flux Pro is not in `composer.json`, so any Pro tag fails in tests immediately |
-| `composer remove` on a git checkout makes upgrades conflict | Documented as an advanced path; activation switch is the default; revisit in phase 4 |
+| `composer remove` on a git checkout makes upgrades conflict | The self-hosting guides never use it: the activation switch hides a module, `module:purge` deletes its data, and its code stays on disk |
 | One organization reads another's data on Cloud | Isolation test required per module (phase 2 onward); route-bound models always authorized against the current organization |
 | A migration breaks the release still serving traffic during a Cloud deploy | Expand-then-contract rule in the architecture guide; reviewed per migration |
 | The private deployment repository drifts from this one | It carries only the `composer.json` and lock change; updating it is a merge from this repository's release tag |

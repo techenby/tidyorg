@@ -1,0 +1,77 @@
+# Configuration
+
+Settings live in the `.env` file in Tessera's directory. With Docker they live in the `.env` file next to `compose.yaml` instead.
+
+After changing a setting on a server install, rebuild the cached configuration:
+
+```sh
+php artisan optimize
+```
+
+With Docker, restart instead: `docker compose up -d`.
+
+## Address and HTTPS
+
+`APP_URL` is the address people use to open Tessera. Links in emails and QR codes are built from it, so it must be the real public address, including `https://`.
+
+When a reverse proxy or load balancer handles HTTPS in front of Tessera, tell Tessera to trust it. Otherwise it builds `http://` links and pages may fail to load their styles.
+
+```
+TESSERA_TRUSTED_PROXIES=*
+```
+
+`*` trusts whichever proxy passed the request on. Use it only when Tessera cannot be reached except through the proxy. Otherwise list the proxy's addresses, separated by commas.
+
+## Outgoing mail
+
+Tessera emails invitations, address confirmations, and password resets. Until mail is set up, those messages are only written to the log and nobody receives them.
+
+Any SMTP service works, including the one that comes with most email hosting:
+
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.org
+MAIL_PORT=587
+MAIL_USERNAME=tessera@example.org
+MAIL_PASSWORD=your-password
+MAIL_FROM_ADDRESS=tessera@example.org
+MAIL_FROM_NAME="Riverside Food Bank"
+```
+
+The account the installer creates is already confirmed, so you can sign in before mail works. People you invite must confirm their address by email.
+
+## One organization or several
+
+```
+TESSERA_SINGLE_ORGANIZATION=true
+```
+
+With this on, which is what the installer sets unless you say otherwise:
+
+- Nobody can register without an invitation.
+- Nobody can create a second organization.
+- Every available module is on for the organization, with no switches to manage.
+- The home page goes straight to sign-in.
+
+Turn it off to host several organizations in one install. Anyone can then register and create an organization, and each organization's admins choose its modules under **Settings → Organizations → Modules**.
+
+## Uploaded files
+
+By default uploads are kept on the server in `storage/app/private`. Include that directory in your [backups](backups.md).
+
+To keep uploads in S3-compatible object storage instead, a server install needs one extra library (`composer require league/flysystem-aws-s3-v3`), and then:
+
+```
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=...
+AWS_BUCKET=...
+AWS_ENDPOINT=https://...
+```
+
+`AWS_ENDPOINT` is only needed for services other than Amazon S3. The Docker image does not include this library.
+
+## Modules
+
+`TESSERA_MODULES` chooses which modules the install offers. See [modules.md](modules.md).

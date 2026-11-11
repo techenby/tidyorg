@@ -26,10 +26,12 @@ class TeamPolicy
 
     /**
      * Determine whether the user can create models.
+     *
+     * A single-organization install only ever has the one organization.
      */
     public function create(User $user): bool
     {
-        return true;
+        return ! config('tessera.single_organization') || ! Team::query()->exists();
     }
 
     /**

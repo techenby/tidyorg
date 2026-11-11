@@ -79,9 +79,15 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::verifyEmailView(fn () => view('pages::auth.verify-email'));
         Fortify::twoFactorChallengeView(fn () => view('pages::auth.two-factor-challenge'));
         Fortify::confirmPasswordView(fn () => view('pages::auth.confirm-password'));
-        Fortify::registerView(fn (Request $request) => view('pages::auth.register', [
-            'teamInvitation' => $this->teamInvitation($request),
-        ]));
+        Fortify::registerView(function (Request $request) {
+            $teamInvitation = $this->teamInvitation($request);
+
+            if (config('tessera.single_organization') && ! $teamInvitation) {
+                return redirect()->route('login')->with('status', __('Registration is by invitation only.'));
+            }
+
+            return view('pages::auth.register', ['teamInvitation' => $teamInvitation]);
+        });
         Fortify::resetPasswordView(fn () => view('pages::auth.reset-password'));
         Fortify::requestPasswordResetLinkView(fn () => view('pages::auth.forgot-password'));
     }
@@ -126,10 +132,7 @@ class FortifyServiceProvider extends ServiceProvider
         $invitation = TeamInvitation::query()
             ->with('team')
             ->where('code', $invitationCode)
-            ->whereNull('accepted_at')
-            ->where(fn ($query) => $query
-                ->whereNull('expires_at')
-                ->orWhere('expires_at', '>=', now()))
+            ->pending()
             ->first();
 
         if (! $invitation) {

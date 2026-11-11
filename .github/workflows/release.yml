@@ -1,0 +1,100 @@
+name: release
+
+# Pushing a version tag (v1.2.3) publishes what self-hosters install:
+# an archive that is ready to run, and a container image.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  # The archive holds the code, the PHP dependencies, and the built assets,
+  # so a server needs neither Composer nor Node.
+  archive:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      # Modules are copied into vendor/ rather than linked, so the archive
+      # extracts the same way on every system.
+      - name: Install PHP dependencies
+        run: composer install --no-dev --no-interaction --no-scripts --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_MIRROR_PATH_REPOS: '1'
+
+      - name: Build assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create the archive
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          tar --create --gzip --file "/tmp/tessera-$TAG.tar.gz" \
+            --transform "s,^\.,tessera-$TAG," \
+            --exclude ./.git \
+            --exclude ./.github \
+            --exclude ./.ai \
+            --exclude ./node_modules \
+            --exclude ./tests \
+            --exclude ./.env \
+            --exclude './bootstrap/cache/*.php' \
+            --exclude './database/*.sqlite*' \
+            .
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" "/tmp/tessera-$TAG.tar.gz" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes
+
+  # The same image runs the web server, the queue worker, and the scheduler.
+  image:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build and push the image
+        env:
+          TAG: ${{ github.ref_name }}
+          REGISTRY_TOKEN: ${{ github.token }}
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+
+          echo "$REGISTRY_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+
+          docker build --tag "$image:${TAG#v}" --tag "$image:latest" .
+          docker push "$image:${TAG#v}"
+          docker push "$image:latest"

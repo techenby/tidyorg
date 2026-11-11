@@ -74,13 +74,15 @@ new #[Title('Organizations')] class extends Component {
     <flux:heading level="2" class="sr-only">{{ __('Organizations') }}</flux:heading>
 
     <x-pages::settings.layout :heading="__('Organizations')" :subheading="__('Manage your organizations and memberships')">
-        <div class="flex items-center justify-end">
-            <flux:modal.trigger name="create-team">
-                <flux:button variant="primary" icon="plus" x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-team')" data-test="teams-new-team-button">
-                    {{ __('New organization') }}
-                </flux:button>
-            </flux:modal.trigger>
-        </div>
+        @can('create', \App\Models\Team::class)
+            <div class="flex items-center justify-end">
+                <flux:modal.trigger name="create-team">
+                    <flux:button variant="primary" icon="plus" x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-team')" data-test="teams-new-team-button">
+                        {{ __('New organization') }}
+                    </flux:button>
+                </flux:modal.trigger>
+            </div>
+        @endcan
 
         <div class="mt-6 space-y-3">
             @forelse ($this->teams as $team)

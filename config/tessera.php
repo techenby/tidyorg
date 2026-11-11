@@ -29,4 +29,18 @@ return [
 
     'single_organization' => (bool) env('TESSERA_SINGLE_ORGANIZATION', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Trusted Proxies
+    |--------------------------------------------------------------------------
+    |
+    | When Tessera runs behind a reverse proxy or load balancer that handles
+    | HTTPS, list the proxy's addresses here, separated by commas, or use
+    | "*" to trust whichever proxy the request came through. Without it,
+    | links are generated with http:// and visitors' addresses are wrong.
+    |
+    */
+
+    'trusted_proxies' => env('TESSERA_TRUSTED_PROXIES'),
+
 ];

@@ -49,7 +49,9 @@ modules/
     routes/web.php
     lang/
     tests/
-docs/                    This guide, plans, and later user documentation
+docker/                  What the container image needs: entrypoint, web server and PHP settings
+Dockerfile, compose.yaml The self-hosting image and the stack that runs it
+docs/                    This guide, plans, user guides, and self-hosting guides
 ```
 
 The root `composer.json` declares `modules/*` as a path repository and requires each first-party module. Removing a module from a deployment is `composer remove tessera/<module>`; its own third-party dependencies leave with it. That is the reason modules are Composer packages rather than folders under `app/`: Composer is the only thing that can remove a feature's dependencies along with the feature.
@@ -146,7 +148,15 @@ This shapes core and every module, whether or not a given change is "for Cloud":
 - **PostgreSQL is the Cloud database** and therefore the primary one in CI. SQLite and MySQL/MariaDB remain supported for self-hosters.
 - **The Cloud deployment is built from a private deployment repository** that tracks this one and adds only the `tessera/cloud` requirement and its lock entry. This repository never mentions the cloud package.
 
-Self-hosted deployments are multi-tenant-capable but normally hold one organization.
+### How self-hosting works
+
+Self-hosted deployments are multi-tenant-capable but normally hold one organization. The guides people follow are in [self-hosting/](self-hosting/README.md).
+
+- **Two supported ways to run it:** the container image (`Dockerfile`, `compose.yaml`, `docker/`) and a release archive on a server with PHP. Both ship every first-party module with assets already built, so a self-hoster never needs Node, and the archive needs no Composer either. `.github/workflows/release.yml` publishes both when a version tag is pushed.
+- **`php artisan tessera:install`** checks the server, writes `.env` (unless the settings come from the environment, as in a container), migrates, and creates the first administrator and organization. It is safe to run again.
+- **`php artisan tessera:upgrade`** is the whole upgrade after the code is replaced: maintenance mode, migrate, rebuild caches, restart queue workers. A release must not need any other manual step. If one does, add it to this command. The container does the same on start.
+- **Single-organization mode** (`TESSERA_SINGLE_ORGANIZATION`) is what the installer sets by default. Registration needs a pending invitation, a second organization cannot be created, every active module is enabled, and the home page goes to sign-in. The rules live in `TeamPolicy::create` and `CreateNewUser`, so interface code asks `@can('create', Team::class)` instead of reading the setting.
+- **The caches are built in production.** Configuration and routes are cached by `tessera:upgrade` and by the container, so `env()` is only ever called in `config/`, and every setting a self-hoster may change is listed in `config/tessera.php`, `.env.example`, `compose.yaml`, and [self-hosting/configuration.md](self-hosting/configuration.md).
 
 ## Constraints that follow from being open source
 
