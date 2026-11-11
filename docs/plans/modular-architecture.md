@@ -1,6 +1,6 @@
 # Implementation plan: modular architecture
 
-Status: phases 0, 1, and 2 complete (2026-11-10). Phase 3 is next.
+Status: phases 0 to 3 complete (2026-11-10). Phase 4 is next.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
@@ -95,16 +95,21 @@ After the straight port, a separate pass should fit the model to nonprofits, whi
 
 ## Phase 3: Prove the boundary with a second module
 
-One module cannot show whether the extension points are right. Build the smallest useful version of **Members** (a directory of people connected to the organization, distinct from user accounts) directly as a module.
+Done. Members is the second module, and making Inventory use it without depending on it produced the one new extension point.
 
-- [ ] `modules/members` with model, pages, permissions, nav, and tests.
-- [ ] One optional integration: Inventory shows "checked out to" when Members is enabled, and nothing when it is not.
-- [ ] Architecture tests per module: each uses only core and its declared dependencies.
-- [ ] CI matrix: core only; each module alone with its dependencies; everything. Run on PostgreSQL (what Cloud uses), SQLite, and MySQL.
-- [ ] Revise `docs/architecture.md` with whatever the second module forced to change.
-- [ ] `php artisan make:module <name>` scaffold, written only now that two real modules agree on the shape.
+- [x] `modules/members` (`tessera/members`): a directory of people who do not need accounts, with name, email, phone, join date, and notes. `members:view` is held by members, `members:manage` by admins.
+- [x] Optional integration: an item can be checked out to a person and checked back in. Inventory offers this only while a module enabled for the organization provides a people directory, and shows nothing otherwise.
+- [x] **Capabilities**, the extension point this forced. Core owns `App\Modules\Contracts\PeopleDirectory`; Members provides it through `Module::capabilities()`; Inventory asks `Modules::capability()`. Neither module names the other, so there is no dependency to declare and either installs alone.
+- [x] Architecture tests generated from each `modules/*/composer.json`: no use of an undeclared module, and no reaching into core outside its public surface.
+- [x] CI matrix in `.github/workflows/tests.yml`: no modules, each module alone, and all modules, each on SQLite, PostgreSQL, and MySQL. Every combination was run locally and passes; the workflow itself has not run yet because nothing has been pushed.
+- [x] `docs/architecture.md` revised with capabilities and how the boundary is enforced.
+- [x] `php artisan make:module "Name"` scaffolds a module with a provider, route, page, and tests. Its own test installs the generated module and loads its page.
 
-Done when: any subset of {inventory, members} installs, activates, and passes its tests.
+Notes:
+
+- Inventory stores the person's id in `inventory_items.checked_out_to` with no foreign key, since it cannot know the provider's table. A person removed from the directory shows as "someone no longer in the directory" and the item can still be checked in.
+- Removing a member is permanent. There is no archive or history yet.
+- Not built, and worth deciding with real users first: check-out history, due dates, checking out several items at once, and a member's page listing what they hold (which needs a second contract in the other direction).
 
 ## Phase 4: Self-hosting
 

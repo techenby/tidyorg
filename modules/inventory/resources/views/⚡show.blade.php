@@ -8,6 +8,9 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
+use App\Modules\Person;
+use Tessera\Inventory\Actions\CheckInItem;
+use Tessera\Inventory\Actions\CheckOutItem;
 use Tessera\Inventory\Actions\DuplicateItem;
 use Tessera\Inventory\Actions\MoveItemToTeam;
 use Tessera\Inventory\Enums\ItemType;
@@ -21,6 +24,8 @@ new #[Title('Inventory')] class extends InventoryPage {
     public ?int $moveToTeamId = null;
 
     public int $duplicateCount = 1;
+
+    public ?int $checkOutTo = null;
 
     /**
      * An item reached through another organization's URL does not exist as far as that organization goes.
@@ -61,6 +66,54 @@ new #[Title('Inventory')] class extends InventoryPage {
             ->withCount('children')
             ->orderBy('name')
             ->paginate(10);
+    }
+
+    /**
+     * Everyone the item could be checked out to. Empty without a people directory.
+     *
+     * @return BaseCollection<int, Person>
+     */
+    #[Computed]
+    public function people(): BaseCollection
+    {
+        return $this->directory?->people($this->team) ?? collect();
+    }
+
+    /**
+     * The person who has the item, or null when it is in, or they have left the directory.
+     */
+    #[Computed]
+    public function borrower(): ?Person
+    {
+        return $this->borrowersOf([$this->item])->first();
+    }
+
+    public function checkOut(CheckOutItem $checkOutItem): void
+    {
+        abort_if($this->directory === null || $this->item->trashed(), 404);
+
+        Gate::authorize('update', $this->item);
+
+        $this->validate([
+            'checkOutTo' => ['required', 'integer', Rule::in($this->people->pluck('id')->all())],
+        ]);
+
+        $checkOutItem->handle($this->item, $this->people->firstWhere('id', $this->checkOutTo));
+
+        $this->modal('check-out')->close();
+        $this->reset('checkOutTo');
+        unset($this->borrower);
+    }
+
+    public function checkIn(CheckInItem $checkInItem): void
+    {
+        abort_if($this->directory === null, 404);
+
+        Gate::authorize('update', $this->item);
+
+        $checkInItem->handle($this->item);
+
+        unset($this->borrower);
     }
 
     public function create(): void
@@ -219,6 +272,32 @@ new #[Title('Inventory')] class extends InventoryPage {
         @endunless
     </div>
 
+    @if ($this->directory && ! $item->trashed())
+        <flux:card size="sm" class="flex flex-wrap items-center justify-between gap-3" data-test="inventory-checkout">
+            @if ($item->checked_out_to)
+                <div class="flex items-center gap-3">
+                    <flux:badge color="sky" icon="arrow-right-start-on-rectangle">{{ __('Checked out') }}</flux:badge>
+                    <flux:text>
+                        {{ __('to :name', ['name' => $this->borrower?->name ?? __('someone no longer in the directory')]) }}
+                        · {{ $item->checked_out_at?->diffForHumans() }}
+                    </flux:text>
+                </div>
+                @if ($this->canManage)
+                    <flux:button wire:click="checkIn" size="sm" data-test="inventory-check-in">{{ __('Check in') }}</flux:button>
+                @endif
+            @else
+                <div class="flex items-center gap-3">
+                    <flux:badge color="green" icon="check">{{ __('Available') }}</flux:badge>
+                </div>
+                @if ($this->canManage)
+                    <flux:modal.trigger name="check-out">
+                        <flux:button size="sm" data-test="inventory-check-out">{{ __('Check out') }}</flux:button>
+                    </flux:modal.trigger>
+                @endif
+            @endif
+        </flux:card>
+    @endif
+
     <div class="grid gap-6 lg:grid-cols-3">
         <div @class(['space-y-6', 'lg:col-span-2' => $item->metadata, 'lg:col-span-3' => ! $item->metadata])>
             @if ($item->photo_url)
@@ -287,4 +366,8 @@ new #[Title('Inventory')] class extends InventoryPage {
     @include('inventory::modals.qr-code')
     @include('inventory::modals.move-item')
     @include('inventory::modals.duplicate-item')
+
+    @if ($this->directory)
+        @include('inventory::modals.check-out')
+    @endif
 </div>

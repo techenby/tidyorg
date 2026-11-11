@@ -1,0 +1,54 @@
+<?php
+
+namespace Tessera\{{ studly }};
+
+use App\Enums\TeamRole;
+use App\Models\Team;
+use App\Modules\Module;
+use App\Modules\NavigationItem;
+
+class {{ studly }}Module extends Module
+{
+    public function key(): string
+    {
+        return '{{ key }}';
+    }
+
+    public function name(): string
+    {
+        return '{{ name }}';
+    }
+
+    public function description(): string
+    {
+        return '';
+    }
+
+    public function path(): string
+    {
+        return dirname(__DIR__);
+    }
+
+    public function permissions(): array
+    {
+        return [
+            '{{ key }}:view' => TeamRole::Member,
+            '{{ key }}:manage' => TeamRole::Admin,
+        ];
+    }
+
+    public function navigation(): array
+    {
+        return [
+            new NavigationItem('{{ name }}', '{{ key }}.index', 'puzzle-piece', '{{ key }}:view'),
+        ];
+    }
+
+    /**
+     * Permanently delete everything this module stores for the organization.
+     */
+    public function purging(Team $team): void
+    {
+        //
+    }
+}

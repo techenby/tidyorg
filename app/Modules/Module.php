@@ -92,6 +92,20 @@ abstract class Module extends ServiceProvider
     }
 
     /**
+     * What the module offers to other modules: core contracts mapped to its implementations.
+     *
+     * This is how modules work together without depending on each other. One
+     * module provides a contract from App\Modules\Contracts, and others ask
+     * the registry for it with capability(), working without it when absent.
+     *
+     * @return array<class-string, class-string>
+     */
+    public function capabilities(): array
+    {
+        return [];
+    }
+
+    /**
      * Run when the module is being enabled for an organization.
      */
     public function enabling(Team $team): void

@@ -16,13 +16,14 @@ class DuplicateItem
 
     /**
      * Create copies of an item beside it, each with its own copy of the photo.
+     * A copy is never checked out, whatever the original is.
      *
      * @return Collection<int, Item>
      */
     public function handle(Item $item, int $count = 1): Collection
     {
         return Collection::times($count, function () use ($item): Item {
-            $copy = $item->replicate(['photo_path', 'thumb_path']);
+            $copy = $item->replicate(['photo_path', 'thumb_path', 'checked_out_to', 'checked_out_at']);
             $copy->save();
 
             if ($item->photo_path) {

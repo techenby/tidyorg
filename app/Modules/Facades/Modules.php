@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static Collection<int, NavigationItem> navigationFor(Team $team, User $user)
  * @method static Collection<int, Widget> widgetsFor(Team $team, User $user)
  * @method static bool allows(User $user, Team $team, string $permission)
+ * @method static TContract|null capability<TContract of object>(class-string<TContract> $contract, ?Team $team = null)
  *
  * @see ModuleRegistry
  */

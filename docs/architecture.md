@@ -63,6 +63,7 @@ These are the rules that keep modules removable. They are the most important par
 1. **Core never references a module.** Nothing in `app/`, `resources/`, `routes/`, `database/`, or `tests/` may mention a `Tessera\*` class, a module's route name, view, table, or config key. If core needs something from a module, the module registers it through an extension point.
 2. **Modules depend on core only through its public surface:** `Team`, `User`, the role and permission system, the app layout, Flux components, and the contracts in `app/Modules/`. Modules do not reach into core internals such as Fortify actions or settings pages.
 3. **A module may depend on another module only if it declares it**, both in its `composer.json` `require` and in its manifest. Dependencies must be acyclic. Enabling a module for an organization requires its dependencies to be enabled.
+   Prefer not to depend at all. When one module would merely be *better* with another, use a capability (below) so each still works alone. Declare a dependency only when the module is meaningless without the other.
 4. **Prefer optional integration to hard dependency.** If Inventory can lend items to members when the Members module exists, Inventory checks `Modules::enabled('members')` and degrades cleanly when it is absent. The check lives in the module that benefits, never in core.
 5. **A module owns its tables.** Table names are prefixed with the module key (`inventory_items`). A module's migrations never alter core tables or another module's tables. Foreign keys may point at core tables and at declared dependencies only.
 6. **Every tenant-owned row has a `team_id`** and is reached through the organization. Policies check membership and permission; queries are scoped to the current organization.
@@ -89,11 +90,27 @@ Core exposes a small, stable set of places where a module plugs in. A module's s
 | Views | A Livewire namespace (`inventory::`) pointing at the module's `resources/views` |
 | Migrations, translations, commands, schedule | Loaded from the module directory |
 | Lifecycle hooks | `enabling`, `disabled`, and `purging` callbacks per organization |
+| Capabilities | Implementations of core contracts that other modules can use, such as a directory of people |
 | Stored files | `App\Modules\StoredFile::url()` for a link to an upload on whichever disk is configured, and `<x-file-input>` for the upload control |
 
 When a module needs something that no extension point offers, add an extension point to core. Do not special-case the module in core.
 
-`tests/Fixtures/Modules/Example` is a complete, minimal module and the reference for how one is put together. `modules/inventory` is the reference for a real one. Tests install modules with the `installModules()` helper in `tests/Pest.php`.
+`tests/Fixtures/Modules/Example` is a complete, minimal module and the reference for how one is put together. `modules/inventory` is the reference for a real one. Start a new module with `php artisan make:module "Name"`.
+
+The boundary is enforced by `tests/Feature/ArchTest.php`, which reads every `modules/*/composer.json` and fails when a module uses another module it does not require, or reaches into core beyond `App\Models`, `App\Enums`, `App\Concerns`, and `App\Modules`. CI runs the suite with no modules, with each module alone, and with all of them, on SQLite, PostgreSQL, and MySQL. Tests install modules with the `installModules()` helper in `tests/Pest.php`.
+
+### Capabilities: modules working together without depending on each other
+
+Inventory can record who has an item, and Members keeps the list of people, yet neither references the other. Core owns the contract, `App\Modules\Contracts\PeopleDirectory`. Members offers an implementation from `capabilities()`. Inventory asks `Modules::capability(PeopleDirectory::class, $team)` and gets it only when a module enabled for that organization provides one; otherwise it gets `null` and hides the feature.
+
+Rules for a capability:
+
+- The contract and any value objects it passes (`App\Modules\Person`) live in core and say nothing about which module is behind them.
+- The consumer must work when the answer is `null`, and must not lose data when it becomes `null` later. Inventory keeps who an item was checked out to while Members is disabled and shows it again when Members comes back.
+- The consumer stores ids from the provider without a foreign key, because it does not know the provider's table. It must cope with an id that no longer resolves.
+- The consumer's tests use a stand-in provider (`tests/Fixtures/Modules/People`), never the real module, so they pass when the real one is not installed.
+
+Add a new contract to core when a second module needs something a first one owns. Do not add one speculatively.
 
 ### Permissions
 

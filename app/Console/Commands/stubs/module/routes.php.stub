@@ -1,0 +1,10 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+ * These routes are already inside {current_team}/{{ key }}, named "{{ key }}.",
+ * and behind auth, organization membership, and the module being enabled.
+ */
+
+Route::livewire('/', '{{ key }}::index')->name('index');

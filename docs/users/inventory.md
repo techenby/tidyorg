@@ -11,6 +11,7 @@ An organization owner or admin turns Inventory on under **Settings → Organizat
 | Browse, search, and open QR codes | Yes | Yes | Yes |
 | Add, edit, duplicate, and move entries | Yes | Yes | Yes |
 | Restore deleted entries | Yes | Yes | Yes |
+| Check entries out and in | Yes | Yes | Yes |
 | Delete entries, and delete them forever | No | Yes | Yes |
 
 ## Entry types
@@ -55,6 +56,12 @@ An entry's menu offers:
 - **Delete**: move the entry to the deleted list. Its contents move to the top level.
 
 Tick several entries to change their parent or delete them together.
+
+## Check items out
+
+When your organization also uses **Members**, an entry's page shows whether it is available. **Check out** records which member has it and when; **Check in** records that it is back. Checked-out entries carry the person's name in the inventory list.
+
+Without Members this section does not appear. If Members is turned off later, check-out records are kept and return when it is turned back on.
 
 ## Deleted entries
 

@@ -1,0 +1,28 @@
+<?php
+
+beforeEach(function () {
+    $this->owner = ownerWithModules('{{ key }}');
+    $this->team = $this->owner->currentTeam;
+});
+
+test('the page opens once the module is enabled for the organization', function () {
+    $this->actingAs($this->owner)
+        ->get(route('{{ key }}.index', ['current_team' => $this->team]))
+        ->assertOk();
+});
+
+test('the page does not exist while the module is disabled for the organization', function () {
+    $this->team->modules()->delete();
+
+    $this->actingAs($this->owner)
+        ->get(route('{{ key }}.index', ['current_team' => $this->team]))
+        ->assertNotFound();
+});
+
+test('another organization\'s page is forbidden', function () {
+    $theirs = ownerWithModules('{{ key }}')->currentTeam;
+
+    $this->actingAs($this->owner)
+        ->get(route('{{ key }}.index', ['current_team' => $theirs]))
+        ->assertForbidden();
+});

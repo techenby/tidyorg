@@ -12,7 +12,8 @@ class MoveItemToTeam
      * Hand an item to another organization, at the top level of its inventory.
      *
      * Anything inside the item stays behind at the top level, and the photo
-     * moves into the destination organization's storage directory.
+     * moves into the destination organization's storage directory. The item
+     * arrives checked in, because the person who had it belongs to the old organization.
      */
     public function handle(Item $item, Team $team): Item
     {
@@ -32,7 +33,13 @@ class MoveItemToTeam
             $paths[$column] = Storage::move($from, $to) ? $to : $from;
         }
 
-        $item->update([...$paths, 'team_id' => $team->id, 'parent_id' => null]);
+        $item->update([
+            ...$paths,
+            'team_id' => $team->id,
+            'parent_id' => null,
+            'checked_out_to' => null,
+            'checked_out_at' => null,
+        ]);
 
         return $item;
     }

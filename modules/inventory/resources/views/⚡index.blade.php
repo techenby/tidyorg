@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Person;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -147,6 +148,17 @@ new #[Title('Inventory')] class extends InventoryPage {
             ->whereNotIn('id', $excluded)
             ->orderBy('name')
             ->get();
+    }
+
+    /**
+     * Who has each checked-out item on this page, keyed by person id. Empty without a people directory.
+     *
+     * @return BaseCollection<int, Person>
+     */
+    #[Computed]
+    public function borrowers(): BaseCollection
+    {
+        return $this->borrowersOf($this->items->items());
     }
 
     public function updatedSearch(): void
@@ -487,6 +499,10 @@ new #[Title('Inventory')] class extends InventoryPage {
                                         <flux:avatar size="xs" :src="$item->thumb_url" :icon="$item->type->icon()" :color="$item->type->color()" icon:variant="outline" />
                                         <span>{{ $item->truncated_name }}</span>
                                     </flux:link>
+                                @endif
+
+                                @if ($this->directory && $item->checked_out_to)
+                                    <flux:badge size="sm" color="sky" icon="arrow-right-start-on-rectangle" data-test="inventory-checked-out">{{ $this->borrowers->get($item->checked_out_to)?->name ?? __('Checked out') }}</flux:badge>
                                 @endif
 
                                 @if (filled($search) && $item->parent)

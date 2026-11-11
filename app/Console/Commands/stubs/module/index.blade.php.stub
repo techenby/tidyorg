@@ -1,0 +1,27 @@
+<?php
+
+use App\Models\Team;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+
+new #[Title('{{ name }}')] class extends Component {
+    /**
+     * Route middleware does not run on Livewire updates, so check the permission here and in every action.
+     */
+    public function mount(): void
+    {
+        abort_unless(Auth::user()->hasTeamPermission($this->team, '{{ key }}:view'), 403);
+    }
+
+    #[Computed]
+    public function team(): Team
+    {
+        return Auth::user()->currentTeam ?? abort(404);
+    }
+}; ?>
+
+<div class="space-y-6" data-test="{{ key }}-index">
+    <flux:heading size="xl">{{ __('{{ name }}') }}</flux:heading>
+</div>

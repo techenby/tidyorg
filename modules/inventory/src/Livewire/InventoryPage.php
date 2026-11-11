@@ -3,7 +3,11 @@
 namespace Tessera\Inventory\Livewire;
 
 use App\Models\Team;
+use App\Modules\Contracts\PeopleDirectory;
+use App\Modules\Facades\Modules;
+use App\Modules\Person;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
@@ -23,6 +27,7 @@ use Tessera\Inventory\Models\Item;
  * @property-read bool $canDelete
  * @property-read Collection<int, Team> $otherTeams
  * @property-read Collection<int, Item> $parentItems
+ * @property-read PeopleDirectory|null $directory
  */
 abstract class InventoryPage extends Component
 {
@@ -49,6 +54,35 @@ abstract class InventoryPage extends Component
     public function canDelete(): bool
     {
         return Auth::user()->hasTeamPermission($this->team, 'inventory:delete');
+    }
+
+    /**
+     * The organization's people directory, when a module enabled for it provides one.
+     *
+     * Checking items out is offered only when this is not null. Inventory does
+     * not know or care which module the directory comes from.
+     */
+    #[Computed]
+    public function directory(): ?PeopleDirectory
+    {
+        return Modules::capability(PeopleDirectory::class, $this->team);
+    }
+
+    /**
+     * The people who have the given items, keyed by person id.
+     *
+     * @param  iterable<Item>  $items
+     * @return SupportCollection<int, Person>
+     */
+    protected function borrowersOf(iterable $items): SupportCollection
+    {
+        $ids = collect($items)->pluck('checked_out_to')->filter()->unique()->values()->all();
+
+        if ($this->directory === null || $ids === []) {
+            return collect();
+        }
+
+        return $this->directory->find($this->team, $ids);
     }
 
     /**

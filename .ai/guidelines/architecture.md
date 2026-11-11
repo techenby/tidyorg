@@ -18,6 +18,8 @@ Tessera is an open-source, self-hosted application for nonprofits (inventory, me
 - `Team` in code is "organization" in all user-facing copy. There are no personal teams.
 - Disabling or deactivating a module never deletes data. Only `module:purge` does.
 - A module's service provider extends `App\Modules\Module`; ask the `App\Modules\Facades\Modules` facade whether a module is enabled. `tests/Fixtures/Modules/Example` is the reference module, and tests install modules with `installModules()`.
+- When one module would be better with another but works without it, do not reference it. Put a contract in `App\Modules\Contracts`, have the owner return it from `capabilities()`, and have the consumer call `Modules::capability(Contract::class, $team)` and handle `null`. Test the consumer against a stand-in in `tests/Fixtures/Modules`, not the real module.
+- Start a module with `php artisan make:module "Name"`. `tests/Feature/ArchTest.php` enforces the module boundary; do not weaken it to make a change pass.
 - `modules/inventory` is the reference for a real module. Module tests create people with `ownerWithModules('inventory')` and `teammate($team, $role)`.
 - Get a URL for an uploaded file from `App\Modules\StoredFile::url($path)`, never `Storage::url()` or `temporaryUrl()` directly. Use `<x-file-input>` for file uploads.
 - Scope a module's queries by organization at the start (`Item::forTeam($team)`), validate ids from the browser against that organization, and authorize every Livewire action; route middleware does not run on Livewire updates.

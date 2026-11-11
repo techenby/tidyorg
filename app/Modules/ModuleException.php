@@ -50,4 +50,9 @@ class ModuleException extends RuntimeException
     {
         return new self(__(':module cannot be disabled while :dependent is enabled.', ['module' => $name, 'dependent' => $dependent]));
     }
+
+    public static function invalidCapability(string $key, string $contract): self
+    {
+        return new self("Module [{$key}] offers [{$contract}] but its implementation does not implement it.");
+    }
 }

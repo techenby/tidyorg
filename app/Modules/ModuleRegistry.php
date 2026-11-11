@@ -160,6 +160,41 @@ class ModuleRegistry
     }
 
     /**
+     * The implementation of a core contract offered by a module enabled for the organization, if any.
+     *
+     * @template TContract of object
+     *
+     * @param  class-string<TContract>  $contract
+     * @return TContract|null
+     */
+    public function capability(string $contract, ?Team $team = null): ?object
+    {
+        $team ??= Auth::user()?->currentTeam;
+
+        if ($team === null) {
+            return null;
+        }
+
+        foreach ($this->enabledFor($team) as $module) {
+            $implementation = $module->capabilities()[$contract] ?? null;
+
+            if ($implementation === null) {
+                continue;
+            }
+
+            $instance = app($implementation);
+
+            if (! $instance instanceof $contract) {
+                throw ModuleException::invalidCapability($module->key(), $contract);
+            }
+
+            return $instance;
+        }
+
+        return null;
+    }
+
+    /**
      * The active modules that depend on the given module.
      *
      * @return Collection<string, Module>

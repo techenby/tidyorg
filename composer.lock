@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e2cb0ed574f21da762dc99eaac29eb3",
+    "content-hash": "cdbf896dd24582b3efc3c4c17bf1fab2",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7462,6 +7462,39 @@
             }
         },
         {
+            "name": "tessera/members",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "modules/members",
+                "reference": "c5763c77f92dfcb5671f35b8f7d88b0b6a222ef3"
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "type": "tessera-module",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Tessera\\Members\\MembersModule"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Tessera\\Members\\": "src/",
+                    "Tessera\\Members\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Tessera module for keeping a directory of the people connected to an organization.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.4.0",
             "source": {
@@ -11749,7 +11782,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "tessera/inventory": 20
+        "tessera/inventory": 20,
+        "tessera/members": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

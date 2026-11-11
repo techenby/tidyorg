@@ -27,6 +27,8 @@ use Tessera\Inventory\Enums\ItemType;
  * @property array<string, string>|null $metadata
  * @property string|null $photo_path
  * @property string|null $thumb_path
+ * @property int|null $checked_out_to
+ * @property Carbon|null $checked_out_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -36,7 +38,7 @@ use Tessera\Inventory\Enums\ItemType;
  * @property-read Team|null $team
  * @property-read Item|null $parent
  */
-#[Fillable(['team_id', 'parent_id', 'type', 'name', 'metadata', 'photo_path', 'thumb_path'])]
+#[Fillable(['team_id', 'parent_id', 'type', 'name', 'metadata', 'photo_path', 'thumb_path', 'checked_out_to', 'checked_out_at'])]
 class Item extends Model
 {
     /** @use HasFactory<ItemFactory> */
@@ -128,6 +130,7 @@ class Item extends Model
         return [
             'type' => ItemType::class,
             'metadata' => 'array',
+            'checked_out_at' => 'datetime',
         ];
     }
 

@@ -1,0 +1,22 @@
+{
+    "name": "tessera/{{ key }}",
+    "description": "Tessera module: {{ name }}.",
+    "type": "tessera-module",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "php": "^8.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tessera\\{{ studly }}\\": "src/",
+            "Tessera\\{{ studly }}\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tessera\\{{ studly }}\\{{ studly }}Module"
+            ]
+        }
+    }
+}

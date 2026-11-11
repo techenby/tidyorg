@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 jobs:
+  # Lint, static analysis, and the whole suite with every module installed.
   ci:
     runs-on: ubuntu-latest
 
@@ -36,3 +37,98 @@ jobs:
 
       - name: Run CI Checks
         run: composer ci:check
+
+  # Core must work with any subset of modules, on every database Tessera supports.
+  # "none" proves core stands alone; each module alone proves it needs no other.
+  modules:
+    runs-on: ubuntu-latest
+    name: ${{ matrix.modules }} on ${{ matrix.database }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        modules: [none, inventory, members, all]
+        database: [sqlite, pgsql, mysql]
+
+    services:
+      postgres:
+        image: ${{ matrix.database == 'pgsql' && 'postgres:17' || '' }}
+        env:
+          POSTGRES_DB: testing
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      mysql:
+        image: ${{ matrix.database == 'mysql' && 'mysql:8.4' || '' }}
+        env:
+          MYSQL_DATABASE: testing
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      - name: Setup Application
+        run: composer setup
+
+      - name: Keep only the modules under test
+        if: matrix.modules != 'all'
+        env:
+          KEEP: ${{ matrix.modules }}
+        run: |
+          for directory in modules/*/; do
+            key="$(basename "$directory")"
+            if [ "$key" != "$KEEP" ]; then
+              composer remove "tessera/$key" --no-interaction
+            fi
+          done
+
+      - name: Point the tests at the database
+        if: matrix.database != 'sqlite'
+        env:
+          DATABASE: ${{ matrix.database }}
+        run: |
+          {
+            echo "DB_CONNECTION=$DATABASE"
+            echo "DB_HOST=127.0.0.1"
+            echo "DB_PORT=$([ "$DATABASE" = pgsql ] && echo 5432 || echo 3306)"
+            echo "DB_DATABASE=testing"
+            echo "DB_USERNAME=$([ "$DATABASE" = pgsql ] && echo postgres || echo root)"
+            echo "DB_PASSWORD=password"
+          } >> "$GITHUB_ENV"
+
+      - name: Run tests
+        env:
+          KEEP: ${{ matrix.modules }}
+        run: |
+          case "$KEEP" in
+            all) php artisan test ;;
+            none) php artisan test tests ;;
+            *) php artisan test tests "modules/$KEEP/tests" ;;
+          esac
