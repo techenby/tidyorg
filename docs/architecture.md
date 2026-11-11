@@ -62,18 +62,16 @@ These are the rules that keep modules removable. They are the most important par
 
 1. **Core never references a module.** Nothing in `app/`, `resources/`, `routes/`, `database/`, or `tests/` may mention a `Tessera\*` class, a module's route name, view, table, or config key. If core needs something from a module, the module registers it through an extension point.
 2. **Modules depend on core only through its public surface:** `Team`, `User`, the role and permission system, the app layout, Flux components, and the contracts in `app/Modules/`. Modules do not reach into core internals such as Fortify actions or settings pages.
-3. **A module may depend on another module only if it declares it**, both in its `composer.json` `require` and in its manifest. Dependencies must be acyclic. Enabling a module for an organization requires its dependencies to be enabled.
-   Prefer not to depend at all. When one module would merely be *better* with another, use a capability (below) so each still works alone. Declare a dependency only when the module is meaningless without the other.
-4. **Prefer optional integration to hard dependency.** If Inventory can lend items to members when the Members module exists, Inventory checks `Modules::enabled('members')` and degrades cleanly when it is absent. The check lives in the module that benefits, never in core.
+3. **A module may depend on another module only if it declares it**, both in its `composer.json` `require` and in its manifest. Dependencies must be acyclic. Enabling a module for an organization requires its dependencies to be enabled. Declare a dependency only when the module is meaningless without the other.
+4. **Prefer optional integration to hard dependency.** Inventory can check items out to members when Members is enabled, and works the same without it. It does this through a capability (see Extension points), so it never names the Members module. The check lives in the module that benefits, never in core.
 5. **A module owns its tables.** Table names are prefixed with the module key (`inventory_items`). A module's migrations never alter core tables or another module's tables. Foreign keys may point at core tables and at declared dependencies only.
 6. **Every tenant-owned row has a `team_id`** and is reached through the organization. Policies check membership and permission; queries are scoped to the current organization.
 7. **No edition checks.** There is no `if (cloud)` anywhere in core or modules. Cloud behaviour is supplied by binding a different implementation of a core contract.
 
 Enforcement:
 
-- Pest architecture tests: `App` must not use `Tessera`; each module may use only core and its declared dependencies.
-- CI runs the core test suite with zero modules installed, and each module's suite with only that module and its dependencies.
-- A test boots every combination of "module active / not active" that matters and asserts the route list and migration set match.
+- Pest architecture tests (`tests/Feature/ArchTest.php`): `App` must not use `Tessera`; each module may use only core's public surface and the modules it requires.
+- CI runs the suite with zero modules installed, with each module alone, and with all of them, on SQLite, PostgreSQL, and MySQL.
 
 ## Extension points
 
