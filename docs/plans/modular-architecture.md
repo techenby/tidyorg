@@ -1,6 +1,6 @@
 # Implementation plan: modular architecture
 
-Status: phases 0 to 4 complete (2026-11-10). Phase 5 is in progress: the parts in this repository are done, the private package and the deployment are not started.
+Status: phases 0 to 4 complete (2026-11-10). Phase 5 is nearly complete: the private package and the Laravel Cloud environment exist; the configured deployment, Stripe, and mail are still to do.
 
 This plan turns the rules in [../architecture.md](../architecture.md) into working code, using Inventory (ported from Sunny) as the first module. Each phase ends in a state that is shippable and tested. Phases 0–3 should be done in order. Phases 4 (self-hosting) and 5 (Cloud) are independent of each other and can be swapped depending on whether self-hosters or paying customers come first.
 
@@ -148,14 +148,23 @@ Done in this repository (2026-11-10):
 - [x] Audit for local disk and in-memory state. Uploads, thumbnails, exports, and Livewire's temporary uploads all go through the default disk. Sessions, cache, and the queue are database-backed. Nothing is held between requests. Two settings matter on Cloud: `APP_MAINTENANCE_DRIVER=cache`, because the default writes a file to local disk, and `TESSERA_TRUSTED_PROXIES=*`.
 - [x] No new core contract was needed for billing. A hosting package can add its own middleware to the `web` group to block an unpaid organization, and `ModuleEntitlements` already covers which modules a plan includes. Add a limits contract only when a plan with a limit exists.
 
-Still to do, outside this repository:
+- [x] An owner can export their organization's data from settings; the link arrives by email (`team:export` permission, owners only).
+- [x] Organization settings sections (`App\Modules\OrganizationSettings`), the extension point the hosting package uses to link to billing.
 
-- [ ] Private `tessera/cloud` package: subscription billing, plan limits, a `ModuleEntitlements` implementation (permissive for now, since no feature is paid-only), operator admin. It also requires the S3 driver (`league/flysystem-aws-s3-v3`), which core does not.
-- [ ] Private deployment repository that tracks this one and adds the `tessera/cloud` requirement and lock entry. Laravel Cloud deploys from it; Composer credentials for the private package are supplied as a build secret.
-- [ ] Laravel Cloud environment: PostgreSQL, object storage as the default filesystem disk, a queue worker, the scheduler, a cache store, and transactional mail. `TESSERA_MODULES=*`, single-organization mode off, and the settings named above.
-- [ ] Deploy command runs `php artisan tessera:upgrade`.
-- [ ] Self-serve sign-up already works with single-organization mode off (register, then create an organization). Decide where payment sits in that flow.
-- [ ] Customer-facing: an owner-run export from organization settings, restoring a closed organization inside the retention period, and database backups (Laravel Cloud's own).
+Done outside this repository (2026-11-10):
+
+- [x] Private `tessera/cloud` package (`techenby/tessera-cloud`, v0.1.0): Stripe billing through Cashier with one flat price per organization, a 14-day trial with no card, a check that sends a lapsed organization's pages to its billing page, the billing page, cancelling the subscription when an organization is closed, optional closing of lapsed organizations, `cloud:organizations` for the operator, a permissive `ModuleEntitlements`, and the S3 driver. Its billing tables are its own (`cloud_accounts`, `cloud_subscriptions`, `cloud_subscription_items`); no core table is altered.
+- [x] Private deployment repository (`techenby/tessera-deploy`): this repository plus the package as a `git subtree` in `cloud/` and the `composer.json` and lock change that install it. The package is carried in the repository rather than downloaded by Composer, so the build needs no GitHub token. `CLOUD.md` there is the runbook.
+- [x] Laravel Cloud application `tessera`, production environment in us-east-2: the smallest Flex instance with scale-to-zero, serverless PostgreSQL, a private object storage bucket as the default disk, a queue worker, the scheduler, and the settings from the audit above. Build runs `php artisan optimize`; deploy runs `php artisan migrate --force` (not `tessera:upgrade`, because Laravel Cloud restarts workers and swaps releases itself).
+
+Still to do:
+
+- [ ] Deploy with the settings above and check it end to end. Only the first, unconfigured build has run.
+- [ ] Stripe: a product and price, API keys, the webhook endpoint, and the customer portal. Then check checkout, the portal, and webhooks in test mode; the package's tests never call Stripe.
+- [ ] Outgoing mail (Resend through Laravel Cloud needs a verified sending domain). Until then nobody can confirm their email address, so nobody can sign up.
+- [ ] A custom domain.
+- [ ] Push this repository before sending anyone to the deployment: the source link points here, and AGPL requires the running code to be available.
+- [ ] Restoring a closed organization inside the retention period, database backups (Laravel Cloud's own), an operator admin beyond the command line, and warning emails before a trial ends.
 - [ ] Replace the starter kit's welcome page, which is what Cloud visitors see at `/`.
 
 Done when: a new customer can sign up, pay, create an organization, enable modules, and use them on the Cloud deployment, and a cancelled organization's data can be exported and removed.
