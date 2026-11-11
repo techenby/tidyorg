@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DownloadTeamExportController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(EnsureTeamMembership::class)->group(function () {
         Route::livewire('settings/organizations/{team}', 'pages::teams.edit')->name('teams.edit');
+        Route::get('settings/organizations/{team}/exports/{file}', DownloadTeamExportController::class)->name('teams.exports.download');
     });
 });
 

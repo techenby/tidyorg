@@ -294,6 +294,10 @@ new class extends Component
                 <livewire:pages::teams.modules :team="$teamModel" />
             @endif
 
+            @can('export', $teamModel)
+                <livewire:pages::teams.export :team="$teamModel" />
+            @endcan
+
             @if ($this->permissions->canDeleteTeam)
                 <div class="space-y-6">
                     <div>

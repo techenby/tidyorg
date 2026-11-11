@@ -92,6 +92,14 @@ class TeamPolicy
     }
 
     /**
+     * Determine whether the user can download everything the team has stored.
+     */
+    public function export(User $user, Team $team): bool
+    {
+        return $user->hasTeamPermission($team, TeamPermission::ExportTeam);
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Team $team): bool
