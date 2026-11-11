@@ -36,6 +36,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TIDYORG_MODULES" value="*"/>
         <env name="TIDYORG_SINGLE_ORGANIZATION" value="false"/>
+        <env name="TIDYORG_REGISTRATION" value="open"/>
         <env name="TIDYORG_TRUSTED_PROXIES" value=""/>
         <env name="TIDYORG_SOURCE_URL" value=""/>
         <env name="TIDYORG_SOURCE_REVISION" value=""/>

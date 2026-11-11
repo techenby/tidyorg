@@ -82,7 +82,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::registerView(function (Request $request) {
             $teamInvitation = $this->teamInvitation($request);
 
-            if (config('tidyorg.single_organization') && ! $teamInvitation) {
+            if (TeamInvitation::required() && ! $teamInvitation) {
                 return redirect()->route('login')->with('status', __('Registration is by invitation only.'));
             }
 

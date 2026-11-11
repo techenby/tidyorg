@@ -55,6 +55,14 @@ With this on, which is what the installer sets unless you say otherwise:
 
 Turn it off to host several organizations in one install. Anyone can then register and create an organization, and each organization's admins choose its modules under **Settings → Organizations → Modules**.
 
+To host several organizations without letting the public register, add:
+
+```
+TIDYORG_REGISTRATION=invitation
+```
+
+Only people an existing organization has invited can then create an account. The default, `open`, lets anyone register.
+
 ## Uploaded files
 
 By default uploads are kept on the server in `storage/app/private`. Include that directory in your [backups](backups.md).

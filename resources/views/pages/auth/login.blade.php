@@ -55,7 +55,7 @@
             </div>
         </form>
 
-        @if ($teamInvitation || ! config('tidyorg.single_organization'))
+        @if ($teamInvitation || ! \App\Models\TeamInvitation::required())
         <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
             <span>{{ __('Don\'t have an account?') }}</span>
             <flux:link

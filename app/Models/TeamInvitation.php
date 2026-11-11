@@ -67,6 +67,14 @@ class TeamInvitation extends Model
     }
 
     /**
+     * Whether an account can only be created by someone an organization has invited.
+     */
+    public static function required(): bool
+    {
+        return config('tidyorg.single_organization') || config('tidyorg.registration') === 'invitation';
+    }
+
+    /**
      * Limit the query to invitations that can still be accepted.
      *
      * @param  Builder<self>  $query

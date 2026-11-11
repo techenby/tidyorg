@@ -34,11 +34,11 @@ class CreateNewUser implements CreatesNewUsers
     }
 
     /**
-     * A single-organization install only accepts people who have been invited.
+     * When registration is by invitation, only accept people who have been invited.
      */
     private function requireInvitation(ValidatorInstance $validator): void
     {
-        if (! config('tidyorg.single_organization') || $validator->errors()->has('email')) {
+        if (! TeamInvitation::required() || $validator->errors()->has('email')) {
             return;
         }
 

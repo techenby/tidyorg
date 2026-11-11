@@ -31,6 +31,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Registration
+    |--------------------------------------------------------------------------
+    |
+    | Who may create an account. "open" lets anyone register and set up an
+    | organization. "invitation" only accepts people an organization has
+    | invited. Single organization mode is always by invitation.
+    |
+    */
+
+    'registration' => env('TIDYORG_REGISTRATION', 'open'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Trusted Proxies
     |--------------------------------------------------------------------------
     |
@@ -72,5 +85,18 @@ return [
         'url' => env('TIDYORG_SOURCE_URL'),
         'revision' => env('TIDYORG_SOURCE_REVISION'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Welcome Page Sections
+    |--------------------------------------------------------------------------
+    |
+    | Visitors to an install that hosts many organizations see a welcome
+    | page. A package may add its own sections to the end of that page
+    | by pushing view names onto this list from its service provider.
+    |
+    */
+
+    'welcome_sections' => [],
 
 ];
